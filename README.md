@@ -1,2 +1,2 @@
 # Algorithmic-Methods
-This repository include exercises from the subject of Algorithmic Techniques Applied To Software Engineering.
+This repository includes exercises from the subject of Algorithmic Techniques Applied To Software Engineering.
