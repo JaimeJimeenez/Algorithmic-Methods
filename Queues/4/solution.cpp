@@ -10,10 +10,6 @@
 using namespace std;
 
 /*@ <answer>
-  
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
  
  El ejercicio consiste en conseguir averiguar que persona le toca en cada
  momento una vez registrada con un identificador y un periodo que esta misma 
@@ -39,19 +35,13 @@ struct registro {
    }
 };
 
-/*bool operator<(const registro& a, const registro& b) {
-   return a.momento > b.momento || (a.momento == b.momento && a.id > b.id);
-}*/
-
 bool resuelveCaso() {
    
-   // leer los datos de la entrada
    int lengthCases;
    cin >> lengthCases;
    if (lengthCases == 0)
       return false;
    
-   // resolver el caso posiblemente llamando a otras funciones
    priority_queue<registro> cola;
 
    for (int i = 0; i < lengthCases; i++) {
@@ -76,18 +66,15 @@ bool resuelveCaso() {
 }
 
 //@ </answer>
-//  Lo que se escriba dejado de esta línea ya no forma parte de la solución.
 
 int main() {
-   // ajustes para que cin extraiga directamente de un fichero
 #ifndef DOMJUDGE
    std::ifstream in("casos.txt");
    auto cinbuf = std::cin.rdbuf(in.rdbuf());
 #endif
    
    while (resuelveCaso());
-   
-   // para dejar todo como estaba al principio
+  
 #ifndef DOMJUDGE
    std::cin.rdbuf(cinbuf);
    system("PAUSE");
