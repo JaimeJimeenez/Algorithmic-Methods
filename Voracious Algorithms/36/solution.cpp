@@ -37,54 +37,52 @@ public:
 
 void print(vector<Trabajo> const& radio) {
     for (auto elem : radio) {
-        cout << elem.inicio << " " << elem.fin << " ";
+        cout << elem.inicio << " " << elem.fin << " - ";
     }
     cout << endl;
 }
 
 bool resuelveCaso() {
+    
     int C, F, N;
     cin >> C >> F >> N;
-    if (F == 0) 
+    if (F == 0)
         return false;
-    
-    vector<Trabajo> radio;
+
+    vector <Trabajo> radio;
     int ci, fi;
     while (N--) {
         cin >> ci >> fi;
         radio.push_back({ci, fi, fi - ci});
     }
-
     sort(radio.begin(), radio.end(), ComparadorTrabajos());
     print(radio);
 
-    if (radio[0].inicio > C) {
+    if (radio[0].inicio > C) { //Caso en que se inicie con un tiempo de inicio mayor que el intervalo Ci
         cout << "Imposible\n";
         return true;
     }
 
-    int trabajos = 1;
-    
-    auto [inicioI, finalI, duracionI] = radio[0];
-    vector<Trabajo> finTrabajos;
-    for (int i = 1; i < radio.size(); i++) {
-        cout << radio[i].inicio << " " << radio[i].fin << " " << radio[i].duracion << endl;
-        if (inicioI < radio[i].inicio) {
-            auto [nuevoinicio, nuevofin, nuevaDur] = radio[i];
-            finTrabajos.push_back(radio[i]);
-        }
-        else if (inicioI == radio[i].inicio) {
-            if (duracionI < radio[i].duracion) {
-                auto [nuevoInicio, nuevoFin, nuevaDur] = radio[i];
-                finTrabajos.push_back(radio[i]);
-            }
-        }
-        else { //Los intervalos de los trabajos no coinciden.
+    int finT = radio[0].fin;
+    int durT = 0;
+    int trabajos = 0;
+    for (int i = 1; i < radio.size() && radio[i].fin >= F; i++) {
+        if (finT < radio[i].inicio) {
             cout << "Imposible\n";
             return true;
         }
+        else if (durT < radio[i].duracion){
+            finT = radio[i].fin;
+            durT = radio[i].duracion;
+            trabajos++;
+        }
     }
-    print(finTrabajos);
+    if (finT < F) { //Caso en el que se acaben los trabajos y se llegue a que no pasa de Fi
+        cout << "Imposible\n";
+        return true;
+    }
+
+    cout << trabajos << "\n";
     return true;
 }
 
@@ -93,17 +91,17 @@ bool resuelveCaso() {
 
 int main() {
    // ajustes para que cin extraiga directamente de un fichero
-/*#ifndef DOMJUDGE
+#ifndef DOMJUDGE
    std::ifstream in("casos.txt");
    auto cinbuf = std::cin.rdbuf(in.rdbuf());
-#endif*/
+#endif
    
    while (resuelveCaso());
    
    // para dejar todo como estaba al principio
-/*ifndef DOMJUDGE
+#ifndef DOMJUDGE
    std::cin.rdbuf(cinbuf);
    system("PAUSE");
-#endif*/
+#endif
    return 0;
 }

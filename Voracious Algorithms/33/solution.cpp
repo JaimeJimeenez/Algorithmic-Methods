@@ -24,7 +24,6 @@ using namespace std;
   La estrategia voraz elige una película la cual no solapa con las anteriores. Se propoone realizar un cambio que consistirá en 
   sustituir la película planteada en la solución optima por la propuesta en la estrategia voraz.
  
- Ordenar con un vector sort.
  @ </answer> */
 
 
