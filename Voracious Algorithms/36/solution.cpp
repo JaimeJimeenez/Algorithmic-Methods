@@ -22,10 +22,18 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
+struct Intervalo {
+    int inicio;
+    int fin;
+    bool operator<(Intervalo const& other) const {
+        return inicio < other.inicio;
+    }
+};
+
 struct Trabajo {
     int inicio;
     int fin;
-    int duracion;
+    int longitud;
 };
 
 class ComparadorTrabajos {
@@ -55,32 +63,30 @@ bool resuelveCaso() {
         cin >> ci >> fi;
         radio.push_back({ci, fi, fi - ci});
     }
-    sort(radio.begin(), radio.end(), ComparadorTrabajos());
+    sort(radio.begin(), radio.end(), ComparadorTrabajos()); //NlogN
     print(radio);
 
-    if (radio[0].inicio > C) { //Caso en que se inicie con un tiempo de inicio mayor que el intervalo Ci
-        cout << "Imposible\n";
-        return true;
+    int cubiertoHasta = C;
+    int sig = 0;
+    int selecs = 0;
+    bool imposible = false;
+    while (!imposible && cubiertoHasta < F) {
+        int maximo = cubiertoHasta;
+        while (siguiente < N && intervalos[siguiente].inicio <= cubiertoHasta) { //Busqueda del intervalo que llega más lejos
+            if (intervalos[siguiente].fin > maximo)
+                maximo = intervalos[siguiente].fin;
+            siguiente++;
+        }
+        if (maximo > cubiertoHasta) {
+            ++selecs;
+            cubiertoHasta = maximo;
+        }
+        else
+            imposible = true;
     }
 
-    int finT = radio[0].fin;
-    int durT = 0;
-    int trabajos = 0;
-    for (int i = 1; i < radio.size() && radio[i].fin >= F; i++) {
-        if (finT < radio[i].inicio) {
-            cout << "Imposible\n";
-            return true;
-        }
-        else if (durT < radio[i].duracion){
-            finT = radio[i].fin;
-            durT = radio[i].duracion;
-            trabajos++;
-        }
-    }
-    if (finT < F) { //Caso en el que se acaben los trabajos y se llegue a que no pasa de Fi
+    if (imposible)
         cout << "Imposible\n";
-        return true;
-    }
 
     cout << trabajos << "\n";
     return true;

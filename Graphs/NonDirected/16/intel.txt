@@ -1,0 +1,15 @@
+Se da un número de puntos en la ciudad junto con las calles en las que está situada.
+Habrá que ir metiendo cada vez que se indica el supermercado y el precio en un vector.
+Se recorre cada vértice para saber que punto más cercano hay
+
+{0,1}, {1, 2} {2, 0} {3, 4} {6, 5}
+2 100
+3 200
+4 50
+
+0 2 4 5
+
+
+Recorre el grafo por cada vertice y sus adyacentes. Si en la posicion del grafo existe un supermercado sacará un precio
+Si no, si no se ha visitado  se marca como visitado hace el push y se
+Que pasa si el supermercado no existe y se ha visitado ya. NO se hace el push.
