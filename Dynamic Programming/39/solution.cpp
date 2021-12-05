@@ -7,9 +7,14 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include "Matriz.h"
 using namespace std;
 
 /*@ <answer>
+
+ Se necesitará inicializar una matriz para saber cual es el coste minimo
+ para una cometa con L centimetros. Después se recorrerá un vector para
+ saber que centimetros hacen falta para conseguir dicho coste
  
 
  @ </answer> */
@@ -25,20 +30,45 @@ struct Cuerda {
    int coste;
 };
 
-bool resuelveCaso() {
+void print(vector<Cuerda> cuerdas) {
+   for (auto elem : cuerdas)
+      cout << elem.longitud << " " << elem.coste << " ";
+   cout << endl;
+}
 
+vector<Cuerda> formarCometa(vector<Cuerda> const& cuerdas, int L, int& costeMin) {
+   int n = cuerdas.size() - 1;
+   Matriz<int> costeCometa(n + 1, L + 1, INT_MAX - 1);
+
+   for (int i = 1; i <= n; i++) {
+      for (int j = 1; j <= L; j++) {
+         if (cuerdas[i].longitud > L)
+            costeCometa[i][j] = costeCometa[i - 1][j];
+         else 
+            costeCometa[i][j] = min(costeCometa[i - 1][j], costeCometa[i - 1][j - (cuerdas[i].longitud + cuerdas[i].coste)]);
+      }
+   }
+
+   costeMin = costeCometa[n][L];
+   cout << costeMin << endl;
+
+   return { };
+} 
+
+bool resuelveCaso() {
+   
    int N, L;
    cin >> N >> L;
-   if (!std::cin)
+   if(!cin) 
       return false;
    
-   int longitud, coste;
-   vector<Cuerda> cuerdas;
+   vector<Cuerda> cuerdas(N + 1);
+   for (int i = 1; i <= N; i++) 
+      cin >> cuerdas[i].longitud >> cuerdas[i].coste;
+   
+   int costeMin = 0;
+   formarCometa(cuerdas, L, costeMin);
 
-   for (int i = 0; i < N; i++) {
-      cin >> longitud >> coste;
-      cuerdas.push_back({longitud, coste});
-   }
    return true;
 }
 

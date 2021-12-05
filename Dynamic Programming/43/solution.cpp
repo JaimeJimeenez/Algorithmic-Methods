@@ -14,19 +14,20 @@
 #include <fstream>
 #include <algorithm>
 #include <vector>
+#include "Matriz.h"
 using namespace std;
 
 
 /*@ <answer>
  
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución (tanto en
- tiempo como en espacio), en función del tamaño del problema.
- Coste O(N) tiempo: siendo N el numero de bombillas
- Coste O(P) espacio: siendo P el numero de costes de cada bombilla 
- Escribe en particular la especificación y definición de la recurrencia
- en la que te has basado para resolver el problema por programación dinámica.
+ luces(i, j) = min coste que se necesita para conseguir una potencia requerida (j) a partir de unas bombillas especificas (i).
+
+
+ luces (i, j) = luces(i - 1, j) si V_i > j
+                min(luces(i - 1, j), luces(i, j - V_i) + C_i) en caso contrario
  
+
+ Se recorrerá el vector de costes para saber que bombillas coinciden con el precio final.
  @ </answer> */
 
 // ================================================================
@@ -41,64 +42,43 @@ void print(vector<int> const& v ) {
   cout << endl;
 }
 
-vector<int> numBombillas(vector<int> const& M, int max, int PMin, int& potenciaF) {
-  size_t n = M.size() - 1;
-  //Se calcula el vector como una matriz
-  vector<int> potencia(max + 1, INT_MAX - 1);
-  potencia[0] = 0;
+vector<int> numBombillas(vector<int> const& potencia, vector<int> const& coste,int max, int PMin, int& costeMinimo) {
+  int n = potencia.size() - 1;
+  Matriz<int> costeBombillas(n + 1, max + 1, 0);
   for (int i = 1; i <= n; i++) {
-    for (int j = M[i]; j <= max; j++) {
-      potencia[j] = min(potencia[j], potencia[j - M[i]] + 1);
+    for (int j = 1; j <= max; j++) {
+      if (potencia[i] > j)
+        costeBombillas[i][j] = costeBombillas[i - 1][j];
+      else 
+        costeBombillas[i][j] = min(costeBombillas[i - 1][j], costeBombillas[i][j - potencia[i] + coste[i]]);
     }
   }
-  //print(potencia);
-  potenciaF = M[max];
 
-  if (potenciaF != INT_MAX - 1) {
-    vector<int> bombillas(n + 1, 0);
-    int i = n; int j = max;
-    while (j > 0) {
-      if (M[i - 1] <= j && potencia[j] == potencia[j - M[i - 1]] + 1) {
-        bombillas[i] = potencia[j];
-        j = j - potencia[i];
-      }
-      else {
-        i--;
-      }
-    }
-    return bombillas;
-  }
-  else {
-    potenciaF = -1;
-    return { };
-  }
+  costeMinimo = costeBombillas[n][max];
+  cout << costeMinimo;
+  //Una vez hallado el coste minimo se conseguirá un vector
+
+  return { };
 }
 
 bool resuelveCaso() {
   
-  // leemos la entrada
    int N, PMax, PMin;
    cin >> N >> PMax >> PMin;
    if (!cin)
       return false;
 
-   // leemos las características de los tipos de bombillas
-   vector<int> potencia(N); // 0-based
+   vector<int> potencia(N + 1); 
    for (int & x : potencia)
       cin >> x;
-   vector<int> coste(N); // 0-based
+   vector<int> coste(N + 1);
    for (int & x : coste)
       cin >> x;
     
+  int costeMinimo = 0;
+  vector<int> bombillas = numBombillas(potencia, coste, PMax, PMin, costeMinimo);
+  if (costeMinimo != 0) {
 
-  // resolver el caso
-  int potenciaF = 0;
-  vector<int> bombillas = numBombillas(potencia, PMax, PMin, potenciaF);
-  if (potenciaF != -1) {
-    int costeTotal = 0;
-    for (int i = 0; i <= N; i++) 
-      costeTotal += bombillas[i];
-    cout << costeTotal << " " << potenciaF << "\n";
   }
   else 
     cout << "Imposible\n";

@@ -6,21 +6,17 @@
 
 #include <iostream>
 #include <fstream>
-#include "Matriz.h"
+#include <vector>
 using namespace std;
 
 /*@ <answer>
-
- f(i, j) = numero de caminos de coste minimo que no pasan por pasadizos que llegan a i, j desde 0,0 
- f(0, 0) = 0 si en el mapa en la posicion 0,0 hay un pasadizo 
- f(0, 0) = 1 en caso contrario
- f(i, j) = 0 si M[i][j] = Pasadizo
- f(i, j) = f(i - 1, j) + f(i, j - 1)
- f(0, j) = f(0, j - 1)
- f(i, 0) = f(i - 1, 0)
-
- Se necesita una tabla de M * N
- 
+  
+ cubos(i, j) = comida maxima que le va a tocar comer la protagonista si los cubos restantes son los cubos de i a j.
+ cubos(i, j) = 0 si i > j 
+ cubos(i, i) = C[i]
+ cubos(i, i + 1) = max(C[i], C[i + 1])
+ cubos(i, j) = max(C[i] + (cubos(i + 2, j) si C[i + 1] > C[j]) + (cubos[i + 1, j - 1] en caso contrario),
+  C[j] + (cubos[i + 1, j - 1] si C[i] > j - 1) cubos[i, j - 2] en caso contrario) si j - i + 1 > 2
  @ </answer> */
 
 
@@ -29,32 +25,23 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-Matriz<int> cuadracity() {
-    
-}
-
 bool resuelveCaso() {
-
-    int N, M;
-    cin >> N >> M;
-    if (!cin)
+    int N;
+    cin >> N;
+    if (N == 0)
         return false;
 
-        Matriz<char> mapa(N, M, '0');
-
-        vector<int> formas;
-        for (int j = 1; j < M;j++);
-         formas[j] = mapa[0][j] == 'P' ? 0 : formas[j - 1];
-
-      for (int i = 1; i < N; i++) {
-         formas[0] = mapa[i][0] == 'P' ? 0 : formas[0];
-         for (int j = 1; j < M; j++) {
-            formas[j] = (mapa[i][j] == 'P') ? 0 : formas[j] + formas[j - i];
-         }
-      }
-
-      cout << formas[M - 1];
+    vector<int> cubos(N);
+    for (int cubo : cubos)
+        cin >> cubo;
     
+    //Primero se calcula por donde se tiene que empezar
+    int index = (cubos[1] > cubos[N - 2]) ? N - 2 : 1;
+    int fin = (index == N - 2) ? 0 : N;
+    while (index != fin) {
+
+    }
+
     return true;
 }
 

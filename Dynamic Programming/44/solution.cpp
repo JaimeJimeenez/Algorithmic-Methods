@@ -60,6 +60,7 @@ void recogeTesoros(vector<Tesoro> const& tesoros, int T, int& maxOro, int& cuant
             cuantos++;
         }
     }
+
 }
 
 bool resuelveCaso() {

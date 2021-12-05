@@ -36,7 +36,6 @@ vector<int> minimoDardos(vector<int> const& diana, int valor, int& numTiradas) {
     
     numTiradas = tiradas[valor];
     
-
     if (numTiradas != INT_MAX - 1) {
         vector<int> cuantas(n + 1, 0);
         int i = n; int j = valor;
