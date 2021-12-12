@@ -12,10 +12,6 @@ using namespace std;
 
 /*@ <answer>
   
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
- 
  Se crea un struct con los atributos para detectar si una tarea se repite
  o no y se guarda en una cola de prioridad la cual está ordenada según el tiempo
  en el que empieza cada tarea.
@@ -25,6 +21,7 @@ using namespace std;
  Habrá un conflicto si se está ocupado cuando se quiera iniciar otra tarea.
  Coste de la operación en el caso peor: O(T) siendo T el número de tareas a realizar, suponiendo que
  todas las tareas no crean conflictos y entren todas en el margen que se quiere conmprobar.
+
  @ </answer> */
 
 
@@ -33,57 +30,53 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-struct Task {
-   bool repeat;
-   int begin, end, frequency;
-   bool operator<(const Task& other) const {
-      return other.begin < begin;
+struct Tarea {
+   bool repite;
+   int inicio, fin, frecuencia;
+   bool operator<(Tarea const& other) const {
+      return other.inicio < inicio;
    }
 };
 
-void print(Task const& t) {
-   cout << t.begin << " " << t.end << endl;
-}
-
 bool resuelveCaso() {
-   
-   int N, M, T; //N: Tareas unicas, M: Tareas repetitivas, T: Tiempo de ver si hay conflicto.
 
+   int N, M, T;
    cin >> N >> M >> T;
-   if (!std::cin) 
+   if (!cin)
       return false;
-   
-   int begin, end;
-   priority_queue<Task> cola;
+
+   priority_queue<Tarea> tareas;
+   int inicio, fin, frecuencia;
+
+   //Se leen las tareas que no se repiten 
    while (N--) {
-      cin >> begin >> end;
-      cola.push({false, begin, end, 0});
+      cin >> inicio >> fin;
+      tareas.push({ false, inicio, fin, 0 });
    }
 
-   int frequency;
+   //Se leen las tareas que se repiten
    while (M--) {
-      cin >> begin >> end >> frequency;
-      cola.push({true, begin, end, frequency});
+      cin >> inicio >> fin >> frecuencia;
+      tareas.push({ true, inicio, fin, frecuencia });
    }
 
-   bool conflict = false;
-   int busy = 0;
+   bool conflicto = false;
+   int ocupado = 0;
 
-   while (!conflict && !cola.empty() && cola.top().begin < T) {
-      Task t = cola.top();
-      cola.pop(); 
-      conflict = busy > t.begin;
-      busy = t.end;
-      if (t.repeat) 
-         cola.push({true, t.begin + t.frequency, t.end + t.frequency, t.frequency});
-      
+   while (!conflicto && !tareas.empty() && tareas.top().inicio < T) {
+      auto t = tareas.top();
+      tareas.pop();
+      conflicto = ocupado > t.inicio;
+      ocupado = t.fin;
+      if (t.repite) 
+         tareas.push( {true, t.inicio + t.frecuencia, t.fin + t.frecuencia, t.frecuencia }); 
    }
 
-   if (conflict) 
+   if (conflicto)
       cout << "SI\n";
    else
       cout << "NO\n";
-
+   
    return true;
 }
 
