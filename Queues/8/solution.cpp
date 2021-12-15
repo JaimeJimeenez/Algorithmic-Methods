@@ -7,13 +7,17 @@
 #include <iostream>
 #include <fstream>
 #include <queue>
+#include <vector>
 using namespace std;
 
 /*@ <answer>
   
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
+ Se tiene una estructura llamada turno que almacena el turno de cada usuario 
+ el cual se almacena en una cola de prioridad que ordena dichos turnos de manera creciente.
+ 
+ Si llega el momento en que el carnicero espera al mediano se recorre la cola esperando a
+ encontrar dicho mediano. Los turnos que no cumplan este requisito se almacenan en una cola auxiliar
+ la cual se reemplazará por la actual.
  
  @ </answer> */
 
@@ -23,28 +27,58 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
+struct Turno {
+   int turno;
+   bool operator<(Turno const& other) const {
+      return other.turno < turno;
+   }
+};
+
+void mediano(priority_queue<Turno> &turnos) {
+   priority_queue<Turno> aux;
+   int tam = (turnos.size() + 1) / 2;
+   int cont = 1;
+
+   while (!turnos.empty()) {
+      if (cont == tam) {
+         cout << turnos.top().turno << " ";
+         turnos.pop();
+         cont++;
+      }
+      else {
+         aux.push(turnos.top());
+         turnos.pop();
+         cont++;
+      }
+   }
+   
+   turnos = aux;
+}
+
 bool resuelveCaso() {
    
    int N;
-
    cin >> N;   
    if (!std::cin)
       return false;
-   
-   priority_queue<int> cola;
-   int M;
+
+   int turno;
+   priority_queue<Turno> turnos;
+   vector<int> aux;
    while (N--) {
-       cin >> M;
-       cola.push(M);
+      cin >> turno;
+      if (turno == 0)
+         if (turnos.size() == 0)
+            cout << "ECSA ";
+         else
+            cout << aux.at((turnos.size() + 1) / 2);
+      else {
+         turnos.push({ turno });
+         aux.push_back(turnos.top().turno);
+      }
    }
 
-   while (!cola.empty()) {
-       
-   }
-   // resolver el caso posiblemente llamando a otras funciones
-   
-   // escribir la solución
-
+   cout << "\n";
    return true;
 }
 
