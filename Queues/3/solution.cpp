@@ -63,21 +63,21 @@ bool resuelveCaso() {
     }
 
     int64_t resultado = 0;
-    auto primero = sumas.top();
-    sumas.pop();
-    auto segundo = sumas.top();
-    sumas.pop();
-    resultado = primero + segundo;
-    esfuerzo += resultado;
 
     while (!sumas.empty()) {
-        auto sig = sumas.top();
-        sumas.pop();
-        resultado += sig.sumando;
-        esfuerzo += resultado;
-        cout << resultado << " " << esfuerzo << endl;
+      if (sumas.size() == 1) {
+          resultado = sumas.top().sumando;
+          sumas.pop();
+      }
+      else  {
+          auto primero = sumas.top();
+          sumas.pop();
+          auto segundo = sumas.top();
+          sumas.pop();
+          sumas.push( { primero + segundo });
+          esfuerzo += primero + segundo;
+      }
     }
-
     cout << esfuerzo << "\n";
     return true;
 }
