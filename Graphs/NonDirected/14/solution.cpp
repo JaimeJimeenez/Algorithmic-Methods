@@ -24,19 +24,21 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-class ComponentesConexas { //O(V + A)
+
+class Componentes {
 public:
-   ComponentesConexas(Grafo const& G) : visit(G.V(), false), componente(G.V()) {
-      for (auto v = 0; v < G.V(); ++v) {
-         if (!visit[v]){
+   Componentes(Grafo const& G) : visit(G.V(), false), componente(G.V()) {
+      for (auto v = 0; v < G.V(); v++) {
+         if (!visit[v]) {
             int tam = dfs(G, v);
             tamComp.push_back(tam);
          }
       }
    }
+
    int tamCompV(int v) {
       return tamComp[componente[v]];
-   }
+   } 
 
 private:
    vector<bool> visit;
@@ -60,21 +62,27 @@ bool resuelveCaso() {
    
    int N, M;
    cin >> N >> M;
-   if (!std::cin) 
+   if (!cin) 
       return false;
    
-   Grafo g(N);
-   while (M--) {
-      int v, aux;
+   Grafo g(N + 1);
+   for (int i = 1; i <= M; i++) {
+      int v;
       cin >> v;
-      aux = v;
-      while (v--) {
+      for (int j = 1; j <= v; j++) {
          int w;
          cin >> w;
-         g.ponArista(aux, w);
-         cout << "Arista puesta: " << aux << " " << w << endl;
+         if (v != w)
+            g.ponArista(v, w);
       }
    }
+
+   Componentes comp(g);
+   for (int i = 1; i < g.V(); i++)
+      cout << comp.tamCompV(i) << " ";
+
+   cout << endl;
+   cout << g << endl;
    // escribir la solución
 
    return true;

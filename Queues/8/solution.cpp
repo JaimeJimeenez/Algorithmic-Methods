@@ -55,6 +55,14 @@ void mediano(priority_queue<Turno> &turnos) {
    turnos = aux;
 }
 
+void print(priority_queue<Turno> turnos) {
+   while (!turnos.empty()) {
+      auto t = turnos.top();
+      turnos.pop();
+      cout << t.turno << " ";
+   }
+}
+
 bool resuelveCaso() {
    
    int N;
@@ -64,20 +72,20 @@ bool resuelveCaso() {
 
    int turno;
    priority_queue<Turno> turnos;
-   vector<int> aux;
+   
    while (N--) {
       cin >> turno;
-      if (turno == 0)
+      if (turno == 0) {
          if (turnos.size() == 0)
             cout << "ECSA ";
-         else
-            cout << aux.at((turnos.size() + 1) / 2);
-      else {
-         turnos.push({ turno });
-         aux.push_back(turnos.top().turno);
+         else 
+            mediano(turnos);
       }
+      else 
+         turnos.push({ turno });
    }
 
+   
    cout << "\n";
    return true;
 }

@@ -16,6 +16,11 @@ using namespace std;
  se resuelve el problema y cuál es el coste de la solución, en función
  del tamaño del problema.
  
+
+ Para saber cual es la bateria máxima que se usa en cada vuelo se necesita ordenar las
+ baterias de mayor a menor dado que se cogerán principalmente las que tengan una duración mayor
+ y se tendrá que conocer el número de drones que se tienen.
+
  @ </answer> */
 
 
@@ -24,71 +29,51 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-struct Dron {
-    int bateria9;
-    int bateria1;
-    bool operator<(Dron const& other) const {
-        return bateria9 < other.bateria9 && bateria1 < other.bateria1;
-    }
-};
-
-void print(priority_queue <Dron> v) {
-    
-    while (!v.empty()) {
-        auto elem = v.top();
-        v.pop();
-        cout << elem.bateria9 << " " << elem.bateria1 << " ";
+void print(priority_queue<int> cola) {
+    while (!cola.empty()) {
+        int c = cola.top();
+        cola.pop();
+        cout << c << " ";
     }
     cout << endl;
 }
 
-void printCola(priority_queue<int> c) {
-    while (!c.empty()){
-        cout << c.top() << " ";
-        c.pop();
+void vuelo(priority_queue<int> &bateria1, priority_queue<int> &bateria9, int duracion1, int duracion9, int &maxHoras) {
+
+    if (duracion1 > duracion9) {
+        bateria1.push(duracion1 - duracion9);
+        maxHoras += duracion9;
     }
-    cout << endl;
+    else if (duracion1 < duracion9) {
+        bateria9.push(duracion9 - duracion1);
+        maxHoras += duracion1;
+    }
+    else 
+        maxHoras += duracion1;
 }
 
-void comprobacionBaterias(int &max, priority_queue<int> &bateria9, priority_queue<int> &bateria1, Dron const& elem) {
-    if (elem.bateria9 > elem.bateria1) {
-        max += (elem.bateria9 - elem.bateria1);
-        bateria9.push(max);
-    }
-    else if (elem.bateria1 > elem.bateria9) {
-        max += (elem.bateria1 - elem.bateria9);
-        bateria1.push(max);
-    }
-    else {
-        max += elem.bateria1;
-        bateria1.push(0);
-        bateria9.push(0);
-    }
-
-}
-
-void horas(int N, priority_queue<Dron> &drones, priority_queue<int> &bateria9, priority_queue<int> &bateria1) {
-    
-    int aux = N - 1;
+void horas(priority_queue<int> bateria1, priority_queue<int> bateria9, int N) {
     int max = 0;
-    auto elem = drones.top();
-    drones.pop();
-    comprobacionBaterias(max, bateria9, bateria1, elem);
-    
-    while (!bateria9.empty() && !bateria1.empty()) {
-        if (aux == 0) {
+    int cont = 0;
+
+    while (!bateria1.empty() && !bateria9.empty()) {
+        if (cont == N) { 
+            cont = 0;
             cout << max << " ";
             max = 0;
-            aux = N;
         }
-        elem = drones.top();
-        drones.pop();
-        comprobacionBaterias(max, bateria9, bateria1, elem);
-        aux--;
-        drones.push({ bateria9.top(), bateria1.top() });
+        int duracion1 = bateria1.top();
+        bateria1.pop();
+        int duracion9 = bateria9.top();
         bateria9.pop();
-        bateria1.pop();   
+        vuelo(bateria1, bateria9, duracion1, duracion9, max);
+        cont++;
     }
+
+    if (cont > 0) 
+        cout << max << " ";
+    cout << "\n";
+
 }
 
 bool resuelveCaso() {
@@ -104,25 +89,14 @@ bool resuelveCaso() {
         cin >> duracion;
         bateria9.push(duracion);
     }
-    //printCola(bateria9);
 
     priority_queue<int> bateria1;
     while (B--) {
         cin >> duracion;
         bateria1.push(duracion);
     }
-    //printCola(bateria1);
 
-    priority_queue<Dron> drones;
-    while (!bateria1.empty() && !bateria9.empty()) {
-        drones.push( { bateria9.top(), bateria1.top() });
-        bateria9.pop();
-        bateria1.pop();
-    }
-    //print(drones);
-
-    horas(N, drones, bateria9, bateria1);
-    cout << endl;
+    horas(bateria1, bateria9, N);
     return true;
 }
 
