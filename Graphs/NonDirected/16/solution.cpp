@@ -34,85 +34,58 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-class MinComponente{
+class ComponenteConexa {
 public:
-    MinComponente(Grafo const& G, vector<int> const& precios) : visit(G.V(), false), componente(G.V()) {
-        for (int v = 0; v < G.V(); v++) {
+    ComponenteConexa(Grafo const& G) : visit(G.V(), false), componente(G.V()), superComponente(G.V()) {
+
+        for (int v = 0; v <= G.V(); v++) {
             if (!visit[v]) {
-                int mejor = dfs(G, v, precios);
-                mejorPrecio.push_back(mejor);
+                int tam  = min(dfs(G, v), superComponente[v]);
             }
         }
     }
 
-    int compConexa(int v) {
-        return componente[v];
-    }
 
-    //Mejor precio de la componente a la que pertenece v
-    int menorPrecio(int v) {
-        return mejorPrecio[componente[v]];
-    }
 private:
-    vector<int> visit; //visit[v] = vertice visitado
-    vector<int> componente; //Número de componente a la que pertence el vertice i
-    vector<int> mejorPrecio; //Mejor precio[i] = mejor precio de la componente a la que pertenece i
+    vector<bool> visit; //Vector que indica si un vertice ya ha sido visitado
+    vector<int> componente; //Vector que para cada vertice indica a que componente pertenece
+    vector<int> superComponente; //Vector que contiene para cada componente el minimo precio de papel
 
-    int dfs(Grafo const& G, int v, vector<int> precios) {
-        visit[v] = true; //Marca como visitado el vertice
-        componente[v] = mejorPrecio.size(); //Coloca el vertice en la componente conexa
-        int mejor = precios[v];
-
+    int dfs(Grafo const& G, int v) {
+        int tam = 1;
+        visit[v] = true;
         for (int w : G.ady(v)) {
             if (!visit[w])
-                mejor = min(mejor, dfs(G, w, precios));
+                tam += dfs(G, w);
         }
-
-        return mejor;
     }
 };
 
 bool resuelveCaso() {
-   
-   int N, C; //Se presenta una ciudad con N vertices y C aristas
-   cin >> N >> C;
 
-   if (!std::cin)  // fin de la entrada
-      return false;
-   
-   Grafo G(N);
-   int v, w;
+    int N, C;
+    cin >> N >> C;
+    if (!cin)
+        return false;
 
-   while (C--) {
-       cin >> v >> w;
-
-       G.ponArista(v - 1, w - 1);
-   }
-
-   int S, punto, precio;
-   vector<int> supermercados;
-   supermercados.resize(N, 0);
-
-   cin >> S;
-   while (S--) {
-       cin >> punto >> precio;
-       supermercados.at(punto) = precio;
-   }
-
-   MinComponente m(G, supermercados);
-   int K, nodo;
-
-   cin >> K;
-   while (K--) {
-       cin >> nodo;
-       if (m.menorPrecio(nodo) == 0)
-            cout << "MENUDO MARRON\n";
-        else
-            cout << m.menorPrecio(nodo) << "\n"; 
+    Grafo g(N + 1);
+    while (C--) {
+        int v, w;
+        cin >> v >> w;
+        g.ponArista(v, w);
     }
-   
-   cout << "---\n";
-   return true;
+    cout << g << endl;
+
+    //Supermercados
+    int S;
+    cin >> S;
+    while (S--) {
+
+    }
+
+    //Numero de consultas
+    int K;
+    cin >> K;
 }
 
 //@ </answer>

@@ -5,9 +5,7 @@
  *@ </answer> */
 /*@ <answer>
   
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
+ 
  
  @ </answer> */
 
@@ -16,22 +14,21 @@
 // Escribe el código completo de tu solución aquí debajo
 // ================================================================
 //@ <answer>
+#include <iostream>
+#include <fstream>
 #include "Grafo.h"
 
-#ifndef MAXCOMPCONEXA_H_
-#define MAXCOMPCONEXA_H_
-
-class MaxCompConexa {
+class ComponenteConexa {
 private:
     vector<bool> visit;
     int maxim;
-
-    int dfs(Grafo const& g, int v) {
+    
+    int dfs(Grafo const& G, int v) {
         visit[v] = true;
         int tam = 1;
-        for (int w : g.ady(v)) {
+        for (int w : G.ady(v)) {
             if (!visit[w]) {
-                tam += dfs(g, w);
+                tam += dfs(G, w);
             }
         }
 
@@ -39,44 +36,35 @@ private:
     }
 
 public:
-
-    MaxCompConexa(Grafo const& g) : visit(g.V(), false), maxim(0) {
-        for (int v = 0; v < g.V(); v++) {
-            if (!visit[v]) {
-                int tam = dfs(g, v);
+    ComponenteConexa(Grafo const& G) : visit(G.V(), false), maxim(0) {
+        for (int v = 0; v < G.V(); v++) {
+            if (!visit[v]){
+                int tam = dfs(G, v);
                 maxim = max(maxim, tam);
             }
+                
         }
     }
 
-    int maximum() const {
+    int maximun() const {
         return maxim;
     }
-
 };
 
-#endif
-
 void resuelveCaso() {
-   
-   // leer los datos de la entrada
-   int n, m;
-   cin >> n >> m;
 
-   Grafo g(n);
-   int v, w;
+   int N, M;
+   cin >> N >> M;
 
-   while (m--) {
+   Grafo G(N + 1);
+   while (M--) {
+       int v, w;
        cin >> v >> w;
-       
-       g.ponArista(v, w);
+       G.ponArista(v, w);
    }
 
-   // resolver el caso posiblemente llamando a otras funciones 
-   MaxCompConexa maximo(g);
-
-   // escribir la solución
-   cout << maximo.maximum() << "\n";
+   ComponenteConexa comp (G);
+   cout << comp.maximun() << endl;
 }
 
 //@ </answer>
