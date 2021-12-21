@@ -8,20 +8,21 @@
 #include <iostream>
 #include <fstream>
 #include <queue> 
+#include <stack>
 #include <vector>
 using namespace std;
 
 /*@ <answer>
-  
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
- 
- Se representa la red de comunicaciones mediante una grafo no dirigido
- en la que los nodos o estaciones son los vertices y las conexiones de estas
- las aristas existentes.
- Se quiere ver las conexiones más rápidas y cortas para llegar de una estación a otra
- por lo que se realizará un recorrido en profundidad.
+
+ El ejercicio plantea conocer las distancias de cada nodo en la red propuesta.
+ Para ello se representa dicha red como un grafo en el que el número de nodos corresponde
+ con el número de estaciones, computadoras... que presenta la red y las aristas las conexiones existentes
+ entre ellas.
+ Como se quiere conocer la distancia minima que existe entre un nodo origen (s) a los nodos restantes
+ se toma el recorrido en anchura para determinarlo. Se deberá comprobar entre que par de nodos existe un camino
+ y si la distancia que existe entre estos dos no supera la marcada como TTL.
+
+ En cuanto al coste: se presenta con un O(V + A) siendo V el número de vertices que posee el grafo y A el número de aristas. 
  @ </answer> */
 
 
@@ -30,68 +31,88 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-class NodosMaximos {
+using Camino = queue<int>;
+
+class CaminoMasCorto {
 public:
-    NodosMaximos(Grafo const& G) : visit(G.V(), false), componente(G.V()), distComponente(G.V()) {
-        for (int v = 0; v <= G.V(); v++) {
-            if (!visit[v]) {
-                int tam = dfs(G, v);
-                distComponente[v].push_back(tam);
-            }
-        }
+    CaminoMasCorto(Grafo const& G, int s) : visit(G.V(), false), ant(G.V()), dist(G.V()), s(s){
+        bfs(G);
+    }
+
+    bool hayCamino(int v) const { return visit[v]; }
+
+    int distancia(int v) const { return dist[v]; }
+
+    Camino camino(int v) const {
+        if (!hayCamino(v)) throw domain_error("No hay camino");
+        Camino cam;
+        for (int x = v; x != s; x = ant[x]) 
+            cam.push(x);
+        cam.push(s);
+        return cam;
     }
 
 private:
     vector<bool> visit;
-    vector<int> componente;
-    vector<vector<int>> distComponente;
+    vector<int> ant;
+    vector<int> dist;
+    int s;
 
-    int dfs(Grafo const& G, int v) {
-        int tam = 1;
-        visit[v] = true;
-        componente[v] = distComponente.size();
-        for (int w : G.ady(v)) {
-            if (!visit[w]) {
-                tam += dfs(G, w);
+    void bfs(Grafo const& G) {
+        queue<int> q;
+        dist[s] = 0;
+        visit[s] = true;
+        q.push(s);
+        while (!q.empty()) {
+            int v = q.front();
+            q.pop();
+            for (int w : G.ady(v)) {
+                if (!visit[w]){
+                    ant[w] = v;
+                    dist[w] = dist[v] + 1;
+                    visit[w] = true;
+                    q.push(w);
+                }
             }
         }
-
-        return tam;
     }
-
 };
 
+
 bool resuelveCaso() {
-   
-   // leer los datos de la entrada
-   int N;
-   cin >> N;
-   if (!std::cin)  // fin de la entrada
-      return false;
-   Grafo G(N);
 
-   int C;
-   cin >> C;
-   while (C--) {
-       int v, w;
-       cin >> v >> w;
+    int N, C;
+    cin >> N >> C;
+    if (!cin)
+        return false;
 
-       G.ponArista(v - 1, w - 1);
-   }
-
-   int numConsultas;
-   cin >> numConsultas;
-   G.print();
-   while (numConsultas--) {
-       int nodo, TTL;
-       
-       cin >> nodo >> TTL;
-
-       cout << nodo - 1 << " " << TTL << endl;
+    Grafo G(N + 1);
+    while (C--) {
+        int v, w;
+        cin >> v >> w;
+        G.ponArista(v, w);
     }
 
-   cout << "---\n";
-   return true;
+    int K;
+    cin >> K;
+    while (K--) {
+        int s, TTL;
+        cin >> s >> TTL;
+        int nodosLejanos = 0;
+        CaminoMasCorto cam(G, s);
+        for (int v = 1; v < G.V(); v++){
+            if (!cam.hayCamino(v))
+                nodosLejanos++;
+            else if (cam.distancia(v) > TTL)
+                nodosLejanos++;
+        }
+             
+        
+        cout << nodosLejanos << "\n";
+    }
+
+    cout << "---\n";
+    return true;
 }
 
 //@ </answer>
