@@ -5,7 +5,14 @@
  *@ </answer> */
 /*@ <answer>
   
- 
+ Se pide conocer el grupo con mayor numero de amigos. Para ello se representará 
+ mediante un grafo dichos grupos, en el cual los personas serán representadas mediante
+ vértices y si estos son amigos se verá reflejado mediante una arista.
+ Como se tiene que recorrer todo el grafo para saber el tamaño de cada componente conexa
+ se realizará un recorrido en profundidad anotando el máximo número de vértices que posee
+ cada componente.
+ El coste es O(V + A) siendo V el número de vertices y A el número de aristas que posee 
+ el grafo.
  
  @ </answer> */
 
@@ -14,6 +21,7 @@
 // Escribe el código completo de tu solución aquí debajo
 // ================================================================
 //@ <answer>
+
 #include <iostream>
 #include <fstream>
 #include "Grafo.h"
