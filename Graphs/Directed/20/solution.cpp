@@ -12,9 +12,7 @@ using namespace std;
 
 /*@ <answer>
   
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
+ Coste O(K * N^2)
  
  @ </answer> */
 
@@ -25,14 +23,29 @@ using namespace std;
 //@ <answer>
 
 const int MAX = 10000000;
-const int INF = 10000000000;
+const int INF = 10000;
 
 int bfs(int N, int K, vector<int> const& saltos) {
     int destino = N * N;
-    vector<int> distancia(MAX, INF);
-    int origen = K;
-    distancia[origen] = 0;
-    queue<int> cola; cola.push(origen);
+    queue<int> q;
+    vector<int> distancia(destino + 1, INF);
+
+    distancia[1] = 0;
+    q.push(1);
+
+    while(!q.empty()) {
+       int v = q.front();
+       q.pop();
+       for (int i = 1; i <= K && v + 1 <= destino; i++) {
+          int w = saltos[v + i];
+          if (distancia[w] == INF) {
+             distancia[w] = distancia[v] + 1;
+             if (w == destino)
+               return distancia[destino];
+            q.push(w);
+          }
+       }
+    }
 }
 
 bool resuelveCaso() {
@@ -43,18 +56,19 @@ bool resuelveCaso() {
    if (N == 0)
       return false;
    
-   vector<int> saltos;
-   for (int i = 0; i <= N * N; ++i) {
+   vector<int> saltos(N * N + 1);
+   for (int i = 1; i <= N * N; ++i) {
        saltos[i] = i;
    }
-   for (int i =  0; i < S + E; i++) {
-       int O, D;
+
+   int O, D;
+   for (int i = 0; i < S + E; i++) {
        cin >> O >> D;
        saltos[O] = D;
    }
    
    //Se realiza un recorrido en anchura
-   cout << bfs(N, K, saltos);
+   cout << bfs(N, K, saltos) << "\n";
    
    // escribir la solución
 

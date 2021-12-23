@@ -30,20 +30,8 @@ using namespace std;
 //@ <answer>
 
 bool resuelveCaso() {
-   
-   int V;
-   cin >> V;
-   Digrafo D(V);
-   cin >> D;
-   
-   if (!std::cin)  // fin de la entrada
-      return false;
-   
-   // resolver el caso posiblemente llamando a otras funciones
-   
-   // escribir la solución
 
-   return true;
+   return false;
 }
 
 //@ </answer>

@@ -7,7 +7,8 @@
 #include "Digrafo.h"
 #include <iostream>
 #include <fstream>
-#include <stack>
+#include <vector>
+#include <queue>
 using namespace std;
 
 /*@ <answer>
@@ -27,85 +28,57 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-using Camino = stack<int>;
+class OrdenTopologico {
+public:
+   OrdenTopologico(Digrafo const& g) : visit(g.V(), false) {
+      for (int v = 1; v < g.V(); v++) {
+         if (!visit[v])
+            dfs(g, v);
+      }
+   }
 
-class CicloDirigido {
+   deque<int> const& orden() const {
+      return _orden;
+   }
+
 private:
    vector<bool> visit;
-   vector<bool> apilado;
-   vector<int> ant;
-   Camino _camino;
-   bool hayCiclo;
-   int precedente;
+   deque<int> _orden;
 
-   void dfs(Digrafo const& D, int v) {
-
-      apilado[v] = true;
+   void dfs(Digrafo const& g, int v) {
       visit[v] = true;
-      for (int w : D.ady(v)) {
-         if (hayCiclo)
-            return;
-         if (!visit[w]) {
-            ant[w] = v;
-            dfs(D, w);
-         }
-         else if (apilado[w]) {
-            hayCiclo = true;
-            for (int x = v; x != w; x = ant[x]){}
-            //   _camino.push_front(x);
-            //_camino.push_front(w); _camino.push_front(v);
-         }
-      }
-      apilado[v] = false;
-   }
-
-
-public:
-   CicloDirigido(Digrafo const& D, int v, int w) : visit(D.V(), false), apilado(D.V(), false), ant(D.V()), camino(), hayCiclo(false), precedente(w){
-      for (int x : D.ady(v)) {
-         if (!visit[x])
-            dfs(D, x);
+      for (int w : g.ady(v)) {
+         if (!visit[w])
+            dfs(g, w);
+         _orden.push_front(v);
       }
    }
-
-   Camino const& getCamino() { return _camino; }
-
-   bool const& hayCiclo() { return hayCiclo; }
-
 };
 
 bool resuelveCaso() {
-   
-   int N;
-
-   cin >> N;
-   if (!std::cin)  // fin de la entrada
+   int N, M;
+   cin >> N >> M;
+   if (!cin)
       return false;
    
-   int M, v, w;
-   Digrafo d(N);
-
-   cin >> M;
+   Digrafo G(N + 1);
    while (M--) {
-       cin >> v >> w;
-       d.ponArista(v, w);
+      int v, w;
+      cin >> v >> w;
+      G.ponArista(v, w);
    }
-   d.print();
-   int A, B;
 
-   cin >> M;
-   while (M--) {
-       cin >> A >> B;
-       CicloDirigido c(d, A, B);
-       if (c.hayCiclo())
-         Camino ciclo = c.getCamino();
-       else
-         cout << "Imposible";
+   OrdenTopologico tareas(G);
+   cout << tareas.orden().size() << "\n";
+   if (tareas.orden().size() != N + 1)
+      cout << "Imposible";
+   else {
+      deque<int> ordenTareas = tareas.orden();
+      for (int i = N; i >= 0; i--) {
+         cout << ordenTareas.at(i) << " ";
+      }
    }
-   // resolver el caso posiblemente llamando a otras funciones
-   
-   // escribir la solución
-
+   cout << "\n";
    return true;
 }
 
