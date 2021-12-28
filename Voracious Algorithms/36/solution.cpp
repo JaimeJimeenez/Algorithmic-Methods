@@ -12,8 +12,7 @@ using namespace std;
 
 /*@ <answer>
 
- 
- 
+
  @ </answer> */
 
 
@@ -25,29 +24,34 @@ using namespace std;
 struct Intervalo {
     int inicio;
     int fin;
-    bool operator<(Intervalo const& other) const {
-        return inicio < other.inicio;
-    }
 };
 
-struct Trabajo {
-    int inicio;
-    int fin;
-    int longitud;
-};
-
-class ComparadorTrabajos {
+class ComparadorIntervalos {
 public:
-    bool operator()(Trabajo const& a, Trabajo const& b) const {
-        return a.inicio < b.inicio;
+    bool operator()(Intervalo const& primero, Intervalo const& segundo) const {
+        return primero.inicio < segundo.inicio;
     }
 };
 
-void print(vector<Trabajo> const& radio) {
-    for (auto elem : radio) {
-        cout << elem.inicio << " " << elem.fin << " - ";
+void trabajos(vector<Intervalo> const& intervalos, int& numTrabajos, int C, int F, int N, bool& imposible){
+
+    int cubiertoHasta = C; 
+    int siguiente = 0;
+    while (!imposible && cubiertoHasta < F) {
+        int max = cubiertoHasta;
+        while (siguiente < N && intervalos[siguiente].inicio <= cubiertoHasta) {
+            if (intervalos[siguiente].fin > max)
+                max = intervalos[siguiente].fin;
+            siguiente++;
+        }
+        
+        if (max > cubiertoHasta) {
+            numTrabajos++;
+            cubiertoHasta = max;
+        }
+        else 
+            imposible = true;
     }
-    cout << endl;
 }
 
 bool resuelveCaso() {
@@ -57,38 +61,22 @@ bool resuelveCaso() {
     if (F == 0)
         return false;
 
-    vector <Trabajo> radio;
+    vector <Intervalo> intervalos;
     int ci, fi;
-    while (N--) {
+    for (int i = 0; i < N; i++) {
         cin >> ci >> fi;
-        radio.push_back({ci, fi, fi - ci});
+        intervalos.push_back({ci, fi});
     }
-    sort(radio.begin(), radio.end(), ComparadorTrabajos()); //NlogN
-    print(radio);
+    sort(intervalos.begin(), intervalos.end(), ComparadorIntervalos()); //NlogN
 
-    int cubiertoHasta = C;
-    int sig = 0;
-    int selecs = 0;
+    int numTrabajos = 0;
     bool imposible = false;
-    while (!imposible && cubiertoHasta < F) {
-        int maximo = cubiertoHasta;
-        while (siguiente < N && intervalos[siguiente].inicio <= cubiertoHasta) { //Busqueda del intervalo que llega más lejos
-            if (intervalos[siguiente].fin > maximo)
-                maximo = intervalos[siguiente].fin;
-            siguiente++;
-        }
-        if (maximo > cubiertoHasta) {
-            ++selecs;
-            cubiertoHasta = maximo;
-        }
-        else
-            imposible = true;
-    }
+    trabajos(intervalos, numTrabajos, C, F, N, imposible);
 
     if (imposible)
         cout << "Imposible\n";
-
-    cout << trabajos << "\n";
+    else
+        cout << numTrabajos << "\n";
     return true;
 }
 
