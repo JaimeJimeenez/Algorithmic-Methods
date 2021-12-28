@@ -38,7 +38,7 @@ struct Edificio {
 class ComparadorEdificios {
 public:
     bool operator()(Edificio const& a, Edificio const& b) const {
-        return a.inicio < b.inicio;
+        return a.fin < b.fin || (a.fin == b.fin && a.inicio < b.inicio);
     }
 };
 
@@ -58,14 +58,12 @@ bool resuelveCaso() {
    sort(edificios.begin(), edificios.end(), ComparadorEdificios());
 
    int ultimoTunel = edificios[0].fin;
-   int siguiente = 1;
    int tuneles = 1;
-   while (siguiente < N) {
-       if (edificios[siguiente].inicio >= ultimoTunel) {
-           ++tuneles;
-           ultimoTunel = edificios[siguiente].fin;
+   for (int i = 1; i < edificios.size(); i++) {
+       if (edificios[i].inicio >= ultimoTunel) {
+           tuneles++;
+           ultimoTunel = edificios[i].fin;
        }
-       siguiente++;
    }
 
    cout << tuneles << "\n";
