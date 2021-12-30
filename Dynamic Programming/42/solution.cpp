@@ -29,34 +29,45 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-Matriz<int> cuadracity() {
-    
+void print(vector<int> const& formas) {
+   for (auto elem : formas)
+      cout << elem << " ";
+   cout << endl;
 }
+
 
 bool resuelveCaso() {
+   int N, M;
+   cin >> N >> M;
+   if (!cin)
+      return false;
+   
+   Matriz<char> mapa(N, M, '0');
+   for (int i = 0; i < N; i++) {
+      for (int j = 0; j < M; j++) 
+         cin >> mapa[i][j];
+   }
 
-    int N, M;
-    cin >> N >> M;
-    if (!cin)
-        return false;
+   cout << mapa;
+   vector<int> formas(M);
 
-        Matriz<char> mapa(N, M, '0');
+   for (int j =  1; j < M; j++)
+      formas[j] = mapa[0][j] == 'P' ? 0 : formas[j - 1];
+   
+   print(formas);
 
-        vector<int> formas;
-        for (int j = 1; j < M;j++);
-         formas[j] = mapa[0][j] == 'P' ? 0 : formas[j - 1];
+   for (int i = 1; i < N; i++) {
+      formas[0] = mapa[i][0] == 'P' ? 0 : formas[0];
+      for (int j = 1; j < M; j++)
+         formas[j] = (mapa[i][j] == 'P') ? 0 : formas[j] + formas[j - 1];
+   }
 
-      for (int i = 1; i < N; i++) {
-         formas[0] = mapa[i][0] == 'P' ? 0 : formas[0];
-         for (int j = 1; j < M; j++) {
-            formas[j] = (mapa[i][j] == 'P') ? 0 : formas[j] + formas[j - i];
-         }
-      }
+   cout << formas[M - 1] << "\n";
 
-      cout << formas[M - 1];
-    
-    return true;
+   return true;
 }
+
+
 
 //@ </answer>
 //  Lo que se escriba dejado de esta línea ya no forma parte de la solución.
