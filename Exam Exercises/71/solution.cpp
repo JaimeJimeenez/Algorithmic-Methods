@@ -11,7 +11,15 @@ using namespace std;
 
 /*@ <answer>
   
- 
+ Se quiere saber el número minimo de gorras que se necesiten para una serie de partidos.
+ Cada partido se disputará por dos equipos los cuales tienen unos seguidores determinados.
+ Cada vez que gane un equipo, los seguidores del equipo perdedor pasarán a ser seguidores del equipo ganador.
+ Por ello, se ordenarán los seguidores de cada equipo de menor a mayor en una cola de prioridad.
+ Cada vez que se dispute un partido se anotarán las gorras necesarias para dicho partido y se insertará en 
+ dicha cola los seguidores totales de cada partido.
+
+ En cuanto al coste:
+    - En función del tiempo: O(NlogN) siendo N el número de equipos que se tienen inicialmente.
  
  @ </answer> */
 
@@ -21,23 +29,32 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-struct Seguidor {
-    int64_t s;
-    bool operator<(Seguidor const& other) const {
-        return this->s < other.s;
-    }
-    int64_t operator+(Seguidor const& other) const {
-        return s + other.s;
+struct Equipo {
+    int seguidor;
+    bool operator<(Equipo const& other) const {
+        return seguidor > other.seguidor;
     }
 };
 
-void print(priority_queue<Seguidor> s) {
-    while (!s.empty()) {
-        auto seguidor = s.top();
-        s.pop();
-        cout << seguidor.s << " ";
+int gorras(priority_queue<Equipo> equipos) {
+    
+    int resultado = 0;
+
+    while (!equipos.empty()) {
+        if (equipos.size() == 1)
+            return resultado;
+        else {
+            auto primero = equipos.top();
+            equipos.pop();
+            auto segundo = equipos.top();
+            equipos.pop();
+            int partido = primero.seguidor + segundo.seguidor;
+            resultado += partido;
+            equipos.push({partido});
+        }
     }
-    cout << endl;
+    
+    return resultado;
 }
 
 bool resuelveCaso() {
@@ -46,39 +63,15 @@ bool resuelveCaso() {
     cin >> N;
     if (N == 0)
         return false;
-
-    if (N == 1) {
-        cout << "0\n";
-        return true;
-    }
-
-    priority_queue<Seguidor> seguidores;
+    
+    priority_queue<Equipo> equipos;
     while (N--) {
-        int S;
-        cin >> S;
-        seguidores.push({ S });
+        int seguidor;
+        cin >> seguidor;
+        equipos.push({seguidor});
     }
-    //print(seguidores);
-
-    int64_t gorras = 0;
-    int64_t resultado = 0;
-    while (!seguidores.empty()) {
-        if (seguidores.size() == 1) {
-            resultado = seguidores.top().s;
-            seguidores.pop();
-        }
-        else {
-            auto primero = seguidores.top();
-            seguidores.pop();
-            auto segundo = seguidores.top();
-            seguidores.pop();
-            seguidores.push({ primero + segundo });
-            gorras += primero + segundo;
-            print(seguidores);
-        }
-    }
-
-    cout << gorras << "\n";
+    
+    cout << gorras(equipos) << "\n";
     return true;
 }
 

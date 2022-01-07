@@ -64,25 +64,22 @@ bool resuelveCaso() {
 	
 	int cont = 0;
 
-	while (cont <= T + 1) {
-		if (baterias.top().duracion == cont) {
-			priority_queue<Bateria> aux;
-			while (!baterias.empty()) {
-				auto bateria = baterias.top(); baterias.pop();
-				if (bateria.duracion == cont) {
-					if (bateria.capacidad - Z > 0) 
-						aux.push( {bateria.id, bateria.duracion + Z, bateria.capacidad - Z} );
-					else if (!repuestos.empty()) {
-					aux.push(repuestos.top());
-					repuestos.pop();
-					}
-				}
-				else 
-					aux.push(bateria);
+	for (int i = 0; i <= T + 1; i++) {
+		auto bateria = baterias.top();
+		if (bateria.duracion == i) {
+			baterias.pop();
+			if (bateria.capacidad - Z > 0) {
+				bateria.capacidad = bateria.capacidad - Z;
+				bateria.duracion += Z;
+				baterias.push(bateria);
+				cout << "Bateria cargada: " << bateria.id << " " << bateria.duracion << " " << bateria.capacidad << " cont: " << cont << "\n";
 			}
-			baterias = aux;
+			else if (!repuestos.empty()) {
+				baterias.push(repuestos.top());
+				repuestos.pop();
+				cout << "Bateria repuesta: " << cont << endl;
+			}
 		}
-		cont++;
 	}
 
 	if (baterias.empty())
