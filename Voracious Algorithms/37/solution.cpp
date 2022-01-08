@@ -11,9 +11,8 @@
 using namespace std;
 
 /*@ <answer>
-  
- 
 
+ 
 
  @ </answer> */
 
@@ -23,31 +22,36 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
+struct Coche {
+   int pila1, pila2;
+};
+
 void resuelveCaso() {
 
-    int N, V, voltio;
-    cin >> N >> V;
-    vector<int> coches;
-    for (int i = 0; i < N; i++) {
-        cin >> voltio;
-        coches.push_back(voltio);
-    }
-    sort(coches.begin(), coches.end());
+   int N, V;
+   cin >> N >> V;
 
-    int menor = 0;
-    int mayor = N - 1;
-    for (int i = 0; i < N; i++) {
-        if (coches[iInicio].voltio + coches[iFinal].voltio >= V) 
-            pilas.push_back({coches[iInicio].voltio, coches[iFinal].voltio});
-            ++menor;
-            --mayor;
-        else{
-            ++menor;
-        }
-    }
-    sort(pilas.begin(), pilas.end(), ComparadorPilas());
+   vector<int> pilas(N);
+   for (int i = 0; i < N; i++) 
+      cin >> pilas[i];
+   sort(pilas.begin(), pilas.end(), less<int>());
 
-    cout << pilas.size() << "\n";
+   int menor = 0;
+   int mayor = N - 1;
+   int numCoches = 0;
+   vector<Coche> coches;
+
+   while (N-- && mayor > menor) {
+      if (pilas[menor] + pilas[mayor] >= V) {
+         numCoches++;
+         menor++;
+         mayor--;
+         coches.push_back( {pilas[menor], pilas[mayor]} );
+      }
+      else 
+         menor++;
+   }
+   cout << coches.size() << endl;
 }
 
 //@ </answer>
