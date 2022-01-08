@@ -22,49 +22,37 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-struct Persona {
-    int peso;
+struct Telesilla {
+    int peso1, peso2;
 };
-
-class ComparadorPersonas {
-public:
-    bool operator()(const Persona& a, const Persona& b) const {
-        return a.peso > b.peso;
-    }
-};
-
-void print(vector<Persona> const& a) {
-    for (auto elem : a) {
-        cout << elem.peso << " ";
-    }
-    cout << endl;
-}
 
 bool resuelveCaso() {
     
-    int telesilla, usuarios;
-    cin >> telesilla >> usuarios;
-    if (!std::cin)
+    int P, N;
+    cin >> P >> N;
+    if (!cin)
         return false;
 
-    int peso;
-    vector<Persona> personas;
-    for (int i = 0; i < usuarios; i++) {
-        cin >> peso;
-        personas.push_back({peso});
-    }    
-    sort(personas.begin(), personas.end(), ComparadorPersonas());
-    print(personas);
-
-    int viajes = 0;
-    int inicio = 1;
-    int pesoTotal = personas[0].peso + personas[personas.size() - 1].peso;
-    int final = personas.size() - 1;
-
-    while (inicio < final) {
-
+    vector<int> pesos(N);
+    for (int i = 0; i < N; i++)
+        cin >> pesos[i];
+    sort(pesos.begin(), pesos.end(), less<int>());
+    
+    vector<Telesilla> telesillas;
+    int menor = 0;
+    int mayor = N - 1;
+    while (N-- && mayor >= menor) {
+        if (pesos[menor] + pesos[mayor] <= P) {
+            telesillas.push_back({ pesos[menor], pesos[mayor] });
+            menor++;
+            mayor--;
+        }
+        else {
+            telesillas.push_back({0, pesos[mayor]});
+            mayor--;
+        }
     }
-
+    cout << telesillas.size() << "\n";
     return true;
 }
 
