@@ -12,10 +12,34 @@ using namespace std;
 
 /*@ <answer>
   
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
+ Supongamos los libros ordenados de la forma que siendo i <= j => L[i] => L[j]
+
+ El algoritmo voraz V toma el libro más caro que queda (después de haber ido recorriendo los libros de 
+ manera creciente de dos en dos) y suma el precio de dicho libro al descuento total. A continuación reinicia
+ el contador a 0 para informar que el siguiente libro que se vaya a comprar es el primer libro de la oferta 3 X 2.
+
+ Ejemplo:
+ L: 40 35 30 25 20 15 10
+
+ La solución voraz: 2, 5 son los índices de los libros a los que se ha aplicado el descuento, teniendo un descuento total de 45.
+ Se representa la solución como N-tuplas, donde V_i es que se ha hecho con el libro en dicha posición.
+ Si V[i] = L[r] es que ese libro se ha descontado del precio total. En caso contrario, si V[i] = comprada, es que se ha
+ tenido que comprar el libro para intentar conseguir la oferta del 3 X 2.
+
+ Sea O una solución óptima y sea i la primera posición donde O y V difieren: O[i] != V[i].
+ Entonces el libro escogido por la solución voraz ha sido asignado más adelante en O. Sea k la posición que cumple que
+ V[i] != O[k]
+
+ L: L[0] >= L[1] ...
+ V: V[0]    V[1] ... | V[i]
+     =       =          != 
+ O: O[0]    O[1] ... | O[i] ... O[k] == V[k]
  
+ Caso 1: V[i] = comprada -> se ha tenido que comprar el libro para intentar alcanzar la oferta del 3 X 2. Por lo que O[i] también es nueva.
+ Caso 2: V[i] = L_r 
+    Si O no utiliza L_r, el cambio es hacer O[i] = L[r]. O no puede empeorar. En otro caso habrá un O[k] = L[r].
+ 
+ El coste es O(NlogN) siendo N el número de libros que se tienen disponibles para comprar.
  @ </answer> */
 
 
@@ -39,7 +63,7 @@ bool resuelveCaso() {
         cout << "0\n";
         return true;
     }
-    sort(libros.begin(), libros.end(), greater<int>());
+    sort(libros.begin(), libros.end(), greater<int>()); //O(NlogN)
 
     int cont = 0;
     int descuento = 0;
