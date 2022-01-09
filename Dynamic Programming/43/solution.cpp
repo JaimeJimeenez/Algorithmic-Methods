@@ -14,7 +14,6 @@
 #include <fstream>
 #include <algorithm>
 #include <vector>
-#include "Matriz.h"
 using namespace std;
 
 #include "EnterosInf.h"
