@@ -4,27 +4,23 @@
  *
  *@ </answer> */
 
-#include "Grafo.h"
 #include <iostream>
 #include <fstream>
-#include <queue>
+#include <vector>
 #include <algorithm>
+#include <climits>
+
+#include "Grafo.h"
 using namespace std;
 
 /*@ <answer>
   
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
-
- Se representa la ciudad como un grafo donde los vértices son los puntos más cercanos
- en los que son posibles la existencia de un supermercado y las aristas son las calles que conectan
- dichos puntos. A continuación, se almacena en un vector los puntos en los que se encuentra un supermercado
- junto con su precio. Por último, se realizan las consultas partiendo de un punto en concreto.
- Se creará un patrón de solución que consisitirá en ir recorriendo los diferentes vértices y almacenando en que
- componente conexa pertenencen. Además se almacenará el tamaño de cada componente conexa en un vector definido.
+ Se pide conocer el supermercado que venda más barato el rollo de papel. Para ello se representa la ciudad mediante un grafo 
+ siendo los puntos de interés sus vertices y las calles las aristas. 
+ Como no se pide el supermercado más próximo desde un punto de origen se elegirá el recorrido en profundidad. Se almacena en un 
+ vector la componente conexa a la que pertenece cada vertice y en otro vector el precio más bajo que existe en dicha componente.
  
-
+ El coste del ejercicio es O(N + M) siendo N el número de vértices y M el número de aristas.
  
  @ </answer> */
 
@@ -34,58 +30,77 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-class ComponenteConexa {
+class RecorridoProfundidad {
 public:
-    ComponenteConexa(Grafo const& G) : visit(G.V(), false), componente(G.V()), superComponente(G.V()) {
 
-        for (int v = 0; v <= G.V(); v++) {
+    RecorridoProfundidad(Grafo const& g, vector<int> const& supermercados) : visit(g.V(), false), componente(g.V()), minim(INT_MAX - 1), supermercados(supermercados) {
+        for (int v = 0; v < g.V(); v++) {
             if (!visit[v]) {
-                int tam  = min(dfs(G, v), superComponente[v]);
+                dfs(g, v);
+                precioComp.push_back(minim);
+                minim = INT_MAX - 1;
             }
         }
     }
 
+    int minimo(int v) const { return precioComp[componente[v]]; }
 
 private:
-    vector<bool> visit; //Vector que indica si un vertice ya ha sido visitado
-    vector<int> componente; //Vector que para cada vertice indica a que componente pertenece
-    vector<int> superComponente; //Vector que contiene para cada componente el minimo precio de papel
+    vector<bool> visit;
+    vector<int> componente;
+    vector<int> precioComp;
+    vector<int> supermercados;
+    int minim;
 
-    int dfs(Grafo const& G, int v) {
-        int tam = 1;
-        visit[v] = true;
-        for (int w : G.ady(v)) {
-            if (!visit[w])
-                tam += dfs(G, w);
-        }
+    void dfs(Grafo const& g, int v) {
+       visit[v] = true;
+       componente[v] = precioComp.size();
+       if (supermercados[v] != -1) 
+           minim = min(supermercados[v], minim);
+       for (int w : g.ady(v)) {
+           if (!visit[w])
+            dfs(g, w);
+       }
     }
 };
 
 bool resuelveCaso() {
 
-    int N, C;
-    cin >> N >> C;
+    int N, M;
+    cin >> N >> M;
     if (!cin)
         return false;
 
     Grafo g(N + 1);
-    while (C--) {
+    while (M--) {
         int v, w;
         cin >> v >> w;
         g.ponArista(v, w);
     }
-    cout << g << endl;
 
-    //Supermercados
     int S;
     cin >> S;
+    vector<int> supermercados(N + 1, -1);
     while (S--) {
-
+        int i, precio;
+        cin >> i >> precio;
+        supermercados[i] = precio;
     }
 
-    //Numero de consultas
+    RecorridoProfundidad recorrido(g, supermercados);
     int K;
     cin >> K;
+    while (K--) {
+        int s;
+        cin >> s;
+        if (recorrido.minimo(s) == INT_MAX - 1)
+            cout << "MENUDO MARRON\n";
+        else
+            cout << recorrido.minimo(s) << "\n";
+    }
+
+    cout << "---\n";
+    return true;
 }
 
 //@ </answer>
