@@ -4,22 +4,24 @@
  *
  *@ </answer> */
 
-#include "Digrafo.h"
 #include <iostream>
 #include <fstream>
-#include <vector>
 #include <queue>
+#include "Digrafo.h"
 using namespace std;
 
 /*@ <answer>
   
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
+ Se quiere conocer el orden en el que se tienen que realizar las tareas las cuales tienen un preferencia determinada.
+ Para ello se representa las tareas y sus distintas relaciones como un grafo en el que las tareas son los vértices y las relaciones sus respectivas aristas dirigidas.
+ Como el una tarea A depende de una tarea B, la misma tarea B no puede depender de la misma tarea A por lo que se considera que si el orden de realizarlas es posible
+ el grafo deberá ser aciclíco.
+
+ Se recorre el grafo mediante un recorrido en profunidad y se comprueba mediante un vector (apilado) que no se está considerando de nuevo un vertice. Si ese es el caso 
+ se declara que es imposible y en caso contrario se realiza la ordenación topológica de el grafo.
+
+ El coste del ejercicio es: O(V + A) siendo V el número de vértices del grafo y A el número de aristas. 
  
- Se realizará un ciclo dirigido del grafo
- Cuando se llegue al vertice B se comprobará si el vertice A ha sido ya visitado
- y por tanto realizado. Si esto es negativo se propondrá un error notificando Es Imposisble
  @ </answer> */
 
 
@@ -28,57 +30,69 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-class OrdenTopologico {
-public:
-   OrdenTopologico(Digrafo const& g) : visit(g.V(), false) {
-      for (int v = 1; v < g.V(); v++) {
-         if (!visit[v])
-            dfs(g, v);
-      }
-   }
-
-   deque<int> const& orden() const {
-      return _orden;
-   }
-
+class RecorriendoTareas {
 private:
    vector<bool> visit;
-   deque<int> _orden;
+   vector<bool> apilado;
+   vector<int> ant;
+   deque<int> camino;
+   bool hayCiclo;
 
    void dfs(Digrafo const& g, int v) {
       visit[v] = true;
+      apilado[v] = true;
       for (int w : g.ady(v)) {
-         if (!visit[w])
-            dfs(g, w);
-         _orden.push_front(v);
+          if (hayCiclo)
+            return;
+          else if (!visit[w]) {
+              ant[w] = v;
+              dfs(g, w);
+          }
+          else if (apilado[w])
+            hayCiclo = true;
       }
+      apilado[v] = false;
+      camino.push_front(v);
    }
+
+public:
+
+    RecorriendoTareas(Digrafo const& g) : visit(g.V(), false), apilado(g.V(), false), ant(g.V()), hayCiclo(false) {
+        for (int v = 1; v < g.V(); v++)
+            if (!visit[v]) 
+                dfs(g, v);
+                
+    }
+    
+    deque<int> getCamino() const { return camino; }
+    
+    bool getCiclo() const { return hayCiclo; }
 };
 
 bool resuelveCaso() {
+
    int N, M;
    cin >> N >> M;
    if (!cin)
       return false;
-   
-   Digrafo G(N + 1);
+
+   Digrafo grafo(N + 1);
    while (M--) {
       int v, w;
       cin >> v >> w;
-      G.ponArista(v, w);
+      grafo.ponArista(v, w);
    }
 
-   OrdenTopologico tareas(G);
-   cout << tareas.orden().size() << "\n";
-   if (tareas.orden().size() != N + 1)
+   RecorriendoTareas recorrido(grafo);
+   if (recorrido.getCiclo())
       cout << "Imposible";
    else {
-      deque<int> ordenTareas = tareas.orden();
-      for (int i = N; i >= 0; i--) {
-         cout << ordenTareas.at(i) << " ";
-      }
-   }
-   cout << "\n";
+       deque<int> tareas = recorrido.getCamino();
+       for (int i = 0; i < tareas.size(); i++)
+        cout << tareas[i] << " ";
+    }
+    cout << endl;
+
    return true;
 }
 
