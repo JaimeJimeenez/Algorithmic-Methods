@@ -6,8 +6,7 @@
 
 #include <iostream>
 #include <fstream>
-#include <vector>
-#include <algorithm>
+#include <string>
 
 #include "Matriz.h"
 #include "EnterosInf.h"
@@ -27,48 +26,29 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-struct Festival {
-    int grupos;
-    int precio;
-};
+EntInf trim_rec(string const& palabra, int i, int j, Matriz<EntInf> & tabla) {
 
-class CompararGrupos {
-public:
-    bool operator()(Festival const& a, Festival const& b) const {
-        return a.grupos > b.grupos || (a.grupos == b.grupos && a.precio < b.precio);
+    if (i > j) {
+        tabla[i][j] = 0;
     }
-};
+    else if (palabra[i] == palabra[j])
+        tabla[i][j] = trim_rec(palabra, i + 1, j - 1, tabla);
+    else 
+        tabla[i][j] = min(trim_rec(palabra, i + 1, j - 1, tabla), trim_rec(palabra, i, j - 1, tabla) + 1);
 
-vector<int> maximoConciertos(vector<Festival> const& grupos, int valor, int& numConciertos) {
-    int n = grupos.size() - 1;
+    return tabla[i][j];
 }
-
-
 
 bool resuelveCaso() {
 
-    int P, N;
-    cin >> P >> N;
+    string palabra;
+    cin >> palabra;
     if (!cin)
         return false;
 
-
-    vector<Festival> grupos;
-    while (N--) {
-        int grupo;
-        int precio;
-        cin >> grupo >> precio;
-        grupos.push_back({grupo, precio});
-    }
-
-    sort(grupos.begin(), grupos.end(), CompararGrupos());
-
-    for (auto elem : grupos)
-        cout << elem.grupos << " " << elem.precio << endl;
-
-    Matriz<int> conciertos(N, N, 0);
-    int numConciertos = 0;
-    M
+    int n = palabra.size();
+    Matriz<EntInf> tabla(n, n, Infinito);
+    cout << trim_rec(palabra, 0, n - 1, tabla) << endl;
 
     return true;
 }

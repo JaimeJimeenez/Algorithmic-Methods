@@ -13,7 +13,7 @@ using namespace std;
 
 /*@ <answer>
 
- Supongamos los enemigos ordenados de la forma que i <= j => E[i] <= E[j]
+ Supongamos los enemigos ordenados de la forma que siendo i <= j => E[i] <= E[j]
  
  El algoritmo voraz V toma la defensa más pequeña de las que quedan que pueden
  ganar. Las derrotas da igual cómo se asignen. Por tanto, el aspecto de la solución 

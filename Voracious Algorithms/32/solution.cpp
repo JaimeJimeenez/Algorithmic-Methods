@@ -34,7 +34,7 @@ using namespace std;
    Sol Y: y_1, y_2 .... | y_i ...   y_k
    -x_i = nueva => no hay camiseta libre de la talla del jugador i, ni de una talla más => y_i tiene que ser
    también nueva (esto no es una diferencia)
-   - x_i = e_r & e_r = j_i (talla del jugador i)
+   - x_i = e_r && e_r = j_i (talla del jugador i)
       Si Y no usa e_r en ningún jugador, el cambio es hacer y_i = e_r. Y no puede empeorar.
       En otro caso, habrá un y_k = e_r.
    Se puede intercambiar y_i con y_k ya que y_k le vale al jugador i (por la solución voraz)
@@ -45,23 +45,13 @@ using namespace std;
       Por como funciona el algoritmo voraz, eso supone que no quedan tallas j_i libre
       x_i != y_i => y_i = nueva y la camiseta e_k se está usando en otro jugador y_k (si no Y sería mejorable) =>
       se intercambia y_i y y_k sin empeorar la solución óptima.
+      
  @ </answer> */
 
 // ================================================================
 // Escribe el código completo de tu solución aquí debajo
 // ================================================================
 //@ <answer>
-
-struct Ropa {
-   int talla;
-};
-
-class ComparadorTallas {
-public:
-   bool operator()(Ropa const& a, Ropa const& b) const {
-      return a.talla < b.talla;
-   }
-};
 
 bool resuelveCaso() {
    int N, M;
@@ -70,50 +60,55 @@ bool resuelveCaso() {
       return false;
 
    int talla;
-   vector<Ropa> jugadores;
-   vector<Ropa> equipaciones;
+   vector<int> jugadores;
+   vector<int> equipaciones;
+
+   while (N--) {
+      cin >> talla;
+      jugadores.push_back({talla});
+   }
+   sort(jugadores.begin(), jugadores.end(), less<int>());
+
+   while (M--) {
+      cin >> talla;
+      equipaciones.push_back({talla});
+   }
+   sort(equipaciones.begin(), equipaciones.end(), less<int>());
 
    if (M == 0) {
       cout << N << "\n";
       return true;
    }
 
-   while (N--) {
-      cin >> talla;
-      jugadores.push_back({talla});
+   if (N == 0) {
+      cout << "0\n";
+      return true;
    }
-   sort(jugadores.begin(), jugadores.end(), ComparadorTallas());
 
-   while (M--) {
-      cin >> talla;
-      equipaciones.push_back({talla});
-   }
-   sort(equipaciones.begin(), equipaciones.end(), ComparadorTallas());
-
-   int nueva = 0;
+   int nuevas = 0;
    for (int i = 0; i < jugadores.size(); i++) {
-      if (jugadores[i].talla != equipaciones[i].talla) {
-         if (jugadores[i].talla + 1 != equipaciones[i].talla) 
-            nueva++;
+      if (jugadores[i] != equipaciones[i]) {
+         if (jugadores[i] + 1 != equipaciones[i])
+            nuevas++;
       }
    }
-   cout << nueva << "\n";
+   cout << nuevas << "\n";
    return true;
 }
 
 //@ </answer>
 
 int main() {
-/*#ifndef DOMJUDGE
+#ifndef DOMJUDGE
    std::ifstream in("casos.txt");
    auto cinbuf = std::cin.rdbuf(in.rdbuf());
-#endif*/
+#endif
    
    while (resuelveCaso());
    
-/*#ifndef DOMJUDGE
+#ifndef DOMJUDGE
    std::cin.rdbuf(cinbuf);
    system("PAUSE");
-#endif*/
+#endif
    return 0;
 }

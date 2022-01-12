@@ -11,15 +11,30 @@ using namespace std;
 
 /*@ <answer>
 
- f(i, j) = numero de caminos de coste minimo que no pasan por pasadizos que llegan a i, j desde 0,0 
- f(0, 0) = 0 si en el mapa en la posicion 0,0 hay un pasadizo 
- f(0, 0) = 1 en caso contrario
- f(i, j) = 0 si M[i][j] = Pasadizo
- f(i, j) = f(i - 1, j) + f(i, j - 1)
- f(0, j) = f(0, j - 1)
- f(i, 0) = f(i - 1, 0)
+ Se pide conocer el número de caminos de coste minimo que no pasan por pasadizos que llegan a una posición (i, j) desde la posición inicial (0, 0)
+ Para ello se recurre a la programación dinámica para resolver este problema con la siguiente función recursiva:
 
- Se necesita una tabla de M * N
+ - cuadracity (i, j) = numero de caminos de coste minimo que no pasan por pasadizos que llegan a i, j desde 0, 0
+
+ Como toda función recursiva, se parten de casos básicos los cuales son:
+ - cuadracity (0, 0) = 0 si en el mapa en la posición inicial (0, 0) hay un pasadizo
+ - cuadracity (0, 0) = 1 en caso contrario
+ - cuadracity (i, 0) = cuadracity (i - 1, 0)
+ - cuadracity (0, j) = cuadracity (0, j - 1)
+ 
+ Por contrapartida se tienen los siguientes casos recursivos:
+ - cuadracity (i, j) = 0 si mapa[i][j] = P (Pasadizo)
+ - cuadracity (i, j) = cuadracity(i - 1, j) + cuadracity(i, j - 1)
+ 
+ La solución buscada es la que cumple con la función recursiva cuadracity (i, j)
+ 
+ Para conseguirlo se utiliza una matriz cuya dimensión es N * M siendo N filas y M columnas. Dicha matriz se rellenará siguiendo la función recursiva explicada anteriormente
+ por lo que para conocer el elemento de la posición (i, j) es necesario conocer los elementos de las posiciones (i - 1, j), (i, j - 1). Se podrá mejorar el espacio adicional si se sustituye 
+ la matriz en cuestión por un vector el cual se va recorriendo de izquierda a derecha.
+ 
+ Por tanto, para este problema se tiene un coste:
+ - En función del tiempo: O(N * M) siendo N el número de filas y M el número de columnas de la matriz ya que se rellenará toda la matriz en coste constante.
+ - En función del espacio: O(M) en el caso de que se utilice un vector.
  
  @ </answer> */
 
@@ -29,14 +44,8 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-void print(vector<int> const& formas) {
-   for (auto elem : formas)
-      cout << elem << " ";
-   cout << endl;
-}
-
-
 bool resuelveCaso() {
+   
    int N, M;
    cin >> N >> M;
    if (!cin)
@@ -48,26 +57,26 @@ bool resuelveCaso() {
          cin >> mapa[i][j];
    }
 
-   cout << mapa;
-   vector<int> formas(M);
-
-   for (int j =  1; j < M; j++)
-      formas[j] = mapa[0][j] == 'P' ? 0 : formas[j - 1];
-   
-   print(formas);
-
-   for (int i = 1; i < N; i++) {
-      formas[0] = mapa[i][0] == 'P' ? 0 : formas[0];
-      for (int j = 1; j < M; j++)
-         formas[j] = (mapa[i][j] == 'P') ? 0 : formas[j] + formas[j - 1];
+   vector<int> cuadracity(M, 0);
+   cuadracity[0] = (mapa[0][0] == 'P') ? 0 : 1;
+   if (cuadracity[0] == 0) {
+      cout << "0\n";
+      return true;
    }
 
-   cout << formas[M - 1] << "\n";
+   for (int i = 1; i < M; i++)
+      cuadracity[i] = (mapa[0][i] == 'P') ? 0 : cuadracity[i - 1];
+
+   for (int i = 1; i < N; i++){
+      cuadracity[0] = mapa[0][0] == 'P' ? 0 : cuadracity[i - 1];
+      for (int j = 1; j < M; j++) 
+         cuadracity[j] = (mapa[i][j] == 'P') ? 0 : cuadracity[j - 1] + cuadracity[j];
+   }
+
+   cout << cuadracity[M - 1] << "\n";
 
    return true;
 }
-
-
 
 //@ </answer>
 //  Lo que se escriba dejado de esta línea ya no forma parte de la solución.

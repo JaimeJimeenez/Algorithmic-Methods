@@ -13,7 +13,11 @@ using namespace std;
 
 /*@ <answer>
  
- Coste O(T * logN) siendo N el número de baterias que se dispongan.
+ Se quiere conocer el estado de una base en Marte pasados T tiempo (siendo T un dato introducido por consola). Para ello se utiliza 
+ una cola de prioridad para almacenar las baterias que se disponen actualmente y que están actualmente en funcionamiento. El orden de esta
+ cola es según el tiempo de duración de dicha batería para poder comprobar su carga en el momento en el que se acabe.
+
+ Coste: O(T*N) siendo T el tiempo que se quiere comprobar el estado de dicha base y N el número de baterias que se dispone en la cola.
  @ </answer> */
 
 
@@ -23,16 +27,21 @@ using namespace std;
 //@ <answer>
 
 struct Bateria {
-	int id, duracion, capacidad;
+	int id;
+	int tiempo;
+	int carga;
+	Bateria(int id, int tiempo) : id(id), carga(tiempo), tiempo(tiempo) { }
+	Bateria(int id, int tiempo, int carga) : id(id), carga(carga), tiempo(tiempo) { }
+
 	bool operator<(Bateria const& other) const {
-		return duracion > other.duracion || (duracion == other.duracion && id > other.id);
+		return other.tiempo < tiempo || (other.tiempo == tiempo && other.id < id);
 	}
 };
 
 void print(priority_queue<Bateria> baterias) {
 	while (!baterias.empty()) {
 		auto bateria = baterias.top(); baterias.pop();
-		cout << bateria.id << " " << bateria.duracion << "\n";
+		cout << bateria.id << " " << bateria.tiempo << endl;
 	}
 }
 
@@ -42,50 +51,53 @@ bool resuelveCaso() {
 	cin >> B;
 	if (!cin)
 		return false;
-	
+
 	priority_queue<Bateria> baterias;
 	int id = 1;
-	int duracion;
-	for (int i = 0; i < B; i++) {
-		cin >> duracion;
-		baterias.push( {id++, duracion, duracion } );
+	int numBaterias = B;
+	while (B--) {
+		int tiempo;
+		cin >> tiempo;
+		baterias.push({id++, tiempo});
 	}
 
+	queue<Bateria> repuestos;
 	int R;
 	cin >> R;
-	priority_queue<Bateria> repuestos;
 	while (R--) {
-		cin >> duracion;
-		repuestos.push( {id++, duracion, duracion });
+		int tiempo;
+		cin >> tiempo;
+		repuestos.push({id++, tiempo});
 	}
 
 	int Z, T;
 	cin >> Z >> T;
-	
-	int cont = 0;
+	int tiempoActual = 0;
 
-	for (int i = 0; i <= T + 1; i++) {
-		auto bateria = baterias.top();
-		if (bateria.duracion == i) {
-			baterias.pop();
-			if (bateria.capacidad - Z > 0) {
-				bateria.capacidad = bateria.capacidad - Z;
-				bateria.duracion += Z;
-				baterias.push(bateria);
-				cout << "Bateria cargada: " << bateria.id << " " << bateria.duracion << " " << bateria.capacidad << " cont: " << cont << "\n";
+	if (!baterias.empty()) {
+		tiempoActual = baterias.top().tiempo;
+		while (tiempoActual <= T && !baterias.empty()) {
+			if (baterias.top().carga - Z <= 0) { //Se da por hecho que la primera bateria de la cola se ha acabado
+				baterias.pop();
+				if (!repuestos.empty()) {
+					baterias.push({ repuestos.front().id, repuestos.front().tiempo, repuestos.front().carga });
+					repuestos.pop();
+				}
 			}
-			else if (!repuestos.empty()) {
-				baterias.push(repuestos.top());
-				repuestos.pop();
-				cout << "Bateria repuesta: " << cont << endl;
+			else {
+				Bateria bateria = baterias.top();
+				baterias.pop();
+				baterias.push({bateria.id, bateria.carga - Z + tiempoActual, bateria.carga - Z });
 			}
+			if (!baterias.empty()) //Si siguen quedando baterias se volverá a comprobar la siguiente bateria con su respectivo tiempo
+				tiempoActual = baterias.top().tiempo;
 		}
 	}
 
-	if (baterias.empty())
+	if (baterias.empty()) 
 		cout << "ABANDONEN INMEDIATAMENTE LA BASE\n";
 	else {
-		if (baterias.size() == B)
+		if (baterias.size() == numBaterias)
 			cout << "CORRECTO\n";
 		else 
 			cout << "FALLO EN EL SISTEMA\n";

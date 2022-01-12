@@ -19,7 +19,7 @@ using namespace std;
  dicha cola los seguidores totales de cada partido.
 
  En cuanto al coste:
-    - En función del tiempo: O(NlogN) siendo N el número de equipos que se tienen inicialmente.
+    - En función del tiempo: O(N) siendo N el número de equipos que se tienen inicialmente.
  
  @ </answer> */
 
@@ -30,7 +30,7 @@ using namespace std;
 //@ <answer>
 
 struct Equipo {
-    int seguidor;
+    int64_t seguidor;
     bool operator<(Equipo const& other) const {
         return seguidor > other.seguidor;
     }
@@ -38,7 +38,7 @@ struct Equipo {
 
 int gorras(priority_queue<Equipo> equipos) {
     
-    int resultado = 0;
+    int64_t resultado = 0;
 
     while (!equipos.empty()) {
         if (equipos.size() == 1)
@@ -48,7 +48,7 @@ int gorras(priority_queue<Equipo> equipos) {
             equipos.pop();
             auto segundo = equipos.top();
             equipos.pop();
-            int partido = primero.seguidor + segundo.seguidor;
+            int64_t partido = primero.seguidor + segundo.seguidor;
             resultado += partido;
             equipos.push({partido});
         }
@@ -66,7 +66,7 @@ bool resuelveCaso() {
     
     priority_queue<Equipo> equipos;
     while (N--) {
-        int seguidor;
+        int64_t seguidor;
         cin >> seguidor;
         equipos.push({seguidor});
     }

@@ -11,15 +11,12 @@
 using namespace std;
 
 /*@ <answer>
-  
- Escribe aquí un comentario general sobre la solución, explicando cómo
- se resuelve el problema y cuál es el coste de la solución, en función
- del tamaño del problema.
- 
 
  Para saber cual es la bateria máxima que se usa en cada vuelo se necesita ordenar las
  baterias de mayor a menor dado que se cogerán principalmente las que tengan una duración mayor
  y se tendrá que conocer el número de drones que se tienen.
+
+ Coste O(N + M) siendo N el número de baterias de 9,5V y M el número de baterias de 1,5V
 
  @ </answer> */
 
@@ -28,15 +25,6 @@ using namespace std;
 // Escribe el código completo de tu solución aquí debajo
 // ================================================================
 //@ <answer>
-
-void print(priority_queue<int> cola) {
-    while (!cola.empty()) {
-        int c = cola.top();
-        cola.pop();
-        cout << c << " ";
-    }
-    cout << endl;
-}
 
 void vuelo(priority_queue<int> &bateria1, priority_queue<int> &bateria9, int duracion1, int duracion9, int &maxHoras) {
 
@@ -70,10 +58,7 @@ void horas(priority_queue<int> bateria1, priority_queue<int> bateria9, int N) {
         cont++;
     }
 
-    if (cont > 0) 
-        cout << max << " ";
-    cout << "\n";
-
+    cout << max << "\n";
 }
 
 bool resuelveCaso() {

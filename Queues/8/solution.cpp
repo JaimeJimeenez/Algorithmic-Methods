@@ -28,65 +28,48 @@ using namespace std;
 //@ <answer>
 
 struct Turno {
-   int turno;
+   int posicion;
    bool operator<(Turno const& other) const {
-      return other.turno < turno;
+      return posicion > other.posicion;
    }
 };
 
-void mediano(priority_queue<Turno> &turnos) {
-   priority_queue<Turno> aux;
-   int tam = (turnos.size() + 1) / 2;
-   int cont = 1;
+void print(priority_queue<Turno> cola) {
 
-   while (!turnos.empty()) {
-      if (cont == tam) {
-         cout << turnos.top().turno << " ";
-         turnos.pop();
-         cont++;
-      }
-      else {
-         aux.push(turnos.top());
-         turnos.pop();
-         cont++;
-      }
+   while (!cola.empty()) {
+      auto p = cola.top();
+      cola.pop();
+      cout << p.posicion << " ";
    }
-   
-   turnos = aux;
-}
-
-void print(priority_queue<Turno> turnos) {
-   while (!turnos.empty()) {
-      auto t = turnos.top();
-      turnos.pop();
-      cout << t.turno << " ";
-   }
+   cout << endl;
 }
 
 bool resuelveCaso() {
-   
+
    int N;
-   cin >> N;   
-   if (!std::cin)
+   cin >> N;
+   if (!cin)
       return false;
 
-   int turno;
-   priority_queue<Turno> turnos;
-   
+   priority_queue<Turno> carniceria;
+   vector<int> orden(N);
    while (N--) {
+      int turno;
       cin >> turno;
       if (turno == 0) {
-         if (turnos.size() == 0)
-            cout << "ECSA ";
-         else 
-            mediano(turnos);
+         if (carniceria.empty())
+            cout << "ECSA";
+         else {
+            
+         }
       }
-      else 
-         turnos.push({ turno });
+      else {
+         carniceria.push({ turno });
+      }
+         
    }
 
-   
-   cout << "\n";
+   print(carniceria);
    return true;
 }
 

@@ -7,19 +7,32 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 #include "EnterosInf.h"
 #include "Matriz.h"
 using namespace std;
 
 /*@ <answer>
   
- Nos dicen que el valor de las monedas que llevemos debe ser exacto al precio del coche, por lo que si se 
- lleva una moneda que sobrepase al precio actual, esa moneda se descarta automaticamente.
- Si se coge la moneda tenemos que asegurarnos que todavía haya monedas de ese valor, que el numero de monedas
- que se coja de ese tipo no sobrepase el valor actual requerido y que el valor de la moneda actual no sobrepase el precio pedido. 
- Se tendrá la siguiente función recursiva:
-    Caso base: f(i, 0) = 0. No se tienen ningun tipo de moneda.
-    f(i, j) = minimo numero de monedas con valor del 1 al i que se necesitan para pagar un coche con valor j.
+ Se pide conocer el número mínimo de monedas que se tienen que llevar para conseguir comprar un determinado coche.
+ Se utilizará la programación dinámica para conseguir este fin, siendo la función recursiva:
+    
+    - tabla(i, j) = minimo número de monedas que se necesitan para comprar un coche de precio j si se tienen unas monedas 
+    numeradas de 1 a n siendo n el número de monedas.
+
+ Como toda función recursiva se tienen los siguientes casos recursivos:
+    - tabla(0, 0) = 0 no se tiene nigún tipo de moneda para pagar un coche de precio 0 (nulo)
+    - tabla(i, 0) = 0 no hay ningún coche que pagar
+ 
+ Por conntrapartida se tienen los siguientes casos recursivos:
+    - tabla(i, j) = INF si j < monedas[i - 1].valor, es decir el valor de la moneda i-esima es mayor que el coste restante o total del coche
+    - tabla(i, j) = min(tabla[i - 1][j - k * monedas[i - 1].valor + k], tabla[i - 1][j]) en caso contrario
+
+ Como se necesitan los valores de la tabla no se puede mejorar el coste en función del espacio. La tabla tendrá una dimensionalidad (N + 1) * (coche + 1)
+ siendo N el número de monedas que se disponen. Dicha tabla se recorrerá en diagonal y de izquierda a derecha.
+
+ El coste en función del espacio y del tiempo es O((N + coche)^3) ya que se tendrá que rellenar la tabla.
+ La llamada a dicha tabla es tabla(n, coche) ya que se parten de n monedas para conseguir un coche de precio "coche". 
  
  @ </answer> */
 
@@ -29,28 +42,38 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-int monedas(vector<int> const& valoresMoneda, vector<int> const& cantidad, int& precio) {
-    int n = valoresMoneda.size();
-    Matriz<int> monedas(n + 1, n + 1, INT_MAX - 1);
+const int INF = 1000000000;
 
-    cout << "h";
-    monedas[0][0] = 0;
+struct Moneda {
+    int valor, cantidad;
+};
+
+class CompararMonedas {
+public:
+    bool operator()(Moneda const& a, Moneda const& b) const {
+        return a.valor > b.valor;
+    }
+};
+
+int minimasMonedas(vector<Moneda> const& monedas, int coche) {
+    int n = monedas.size();
+    Matriz<int> tabla(n + 1, coche + 1, INF);
+    tabla[0][0] = 0;
     for (int i = 1; i <= n; i++) {
-        monedas[i][0] = 0;
-        for (int j = 1; j <= precio; j++) { //Precio actual
-            if (j >= valoresMoneda[i - 1]) {
-                int temp = INT_MAX - 1;
-                for (int k = 1; k >= cantidad[i - 1] && j - k * valoresMoneda[i - 1] >= 0 && j - k * valoresMoneda[i - 1] <= precio; k++) {
-                    temp = monedas[i - 1][j - k * valoresMoneda[i - 1]] + k;
-                    if (temp < monedas[i][j]) {
-                        monedas[i][j] = temp;
-                    }
+        tabla[i][0] = 0;
+        for (int j = 1; j <= coche; j++) {
+            tabla[i][j] = tabla[i - 1][j];
+            if (j >= monedas[i - 1].valor) { 
+                for (int k = 1; k <= monedas[i - 1].cantidad && j - k * monedas[i - 1].valor >= 0 && j - k * monedas[i - 1].valor <= coche; k++) {
+                    int temp = tabla[i - 1][j - k * monedas[i - 1].valor] + k; 
+                    if (temp < tabla[i][j])
+                        tabla[i][j] = temp;
                 }
             }
         }
     }
 
-    return monedas[n][precio];
+    return tabla[n][coche];
 }
 
 bool resuelveCaso() {
@@ -60,22 +83,23 @@ bool resuelveCaso() {
     if (!cin)
         return false;
 
-    vector<int> valoresMoneda(N);
-    vector<int> cantidad(N);
-
-    for (int i = 0; i < N; i++) 
-        cin >> valoresMoneda[i];
+    vector<Moneda> monedas(N);
     for (int i = 0; i < N; i++)
-        cin >> cantidad[i];
+        cin >> monedas[i].valor;
+    
+    for (int i = 0; i < N; i++) 
+        cin >> monedas[i].cantidad;
+    
+    sort(monedas.begin(), monedas.end(), CompararMonedas());
 
     int coche;
     cin >> coche;
 
-    int num = monedas(valoresMoneda, cantidad, coche);
-    if (num == INT_MAX - 1) 
+    int minimo = minimasMonedas(monedas, coche);
+    if (minimo == INF) 
         cout << "NO\n"; 
     else 
-        cout << "SI" << num << "\n";
+        cout << "SI " << minimo << "\n";
     
     return true;
 }

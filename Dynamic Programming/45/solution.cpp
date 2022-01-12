@@ -7,6 +7,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include "EnterosInf.h"
 #include "Matriz.h"
 using namespace std;
 
@@ -21,8 +22,8 @@ using namespace std;
  - aibofobia (i, i) = 0 en el caso de que i == j
  - aibofobia (i, j) = 0 en el caso de que i > j
  Por contrapartida se tienen diversos casos recursivos:
- - aibofobia (i, j) = aibofobia(i + 1, j - 1) + 2 si palabra[i] == palabra[j]
- - aibofobia (i, j) = min(aibofobia(i + 1, j), aibofobia(i, j - 1)) en caso contrario
+ - aibofobia (i, j) = aibofobia(i + 1, j - 1) si palabra[i] == palabra[j]
+ - aibofobia (i, j) = min(aibofobia(i + 1, j) + 1, aibofobia(i, j - 1) + 1) en caso contrario
 
  Se utilizará una matriz de dimensionalidad (N + 1) fila * (N + 1) columnas y se irá rellenando teniendo en cuenta la función recursiva
  explicada anteriormente. Una vez que se haya rellenado la matriz, la llamada a la función recursiva será aibofobia (0, n - 1).
@@ -48,24 +49,20 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-int aibofobia(string const& palabra, int i, int j, Matriz<int> & M) {
-
-   int& res = M[i][j];
-   if (res == -1) {
-      if (i > j)
-         res = 0;
-      else if (i == j)
-         res = 0;
-      else if (palabra[i] == palabra[j])
-         res = aibofobia(palabra, i + 1, j - 1, M) + 2;
+EntInf aibofobia(string const& palabra, int i, int j, Matriz<EntInf> &M) {
+   EntInf& res = M[i][j];
+   if (res == Infinito) {
+      if (i >= j)
+         M[i][j] = 0;
+      else if (palabra[i] == palabra[j]) //Tienen la misma letra en ambas posiciones
+         M[i][j] = aibofobia(palabra, i + 1, j - 1, M);
       else 
-         res = min(aibofobia(palabra, i + 1, j, M), aibofobia(palabra, i, j - 1, M));
+         M[i][j] = min(aibofobia(palabra, i + 1, j, M) + 1, aibofobia(palabra, i, j - 1, M) + 1);
    }
-   
-   return res;
+   return M[i][j];
 }
 
-string reconstruir(string const& palabra, Matriz<int> const& palindromo, int i, int j) {
+string reconstruir(string const& palabra, Matriz<EntInf> const& palindromo, int i, int j) {
    if (i > j)
       return { };
    if (i == j)
@@ -73,9 +70,9 @@ string reconstruir(string const& palabra, Matriz<int> const& palindromo, int i, 
    if (palabra[i] == palabra[j])
       return palabra[i] + reconstruir(palabra, palindromo, i + 1, j - 1) + palabra[j];
    else if (palindromo[i][j] == palindromo[i + 1][j])
-      return reconstruir(palabra, palindromo, i + 1, j);
+      return palabra[i] + reconstruir(palabra, palindromo, i + 1, j) + palabra[i];
    else 
-      return reconstruir(palabra, palindromo, i, j - 1);
+      return palabra[j] + reconstruir(palabra, palindromo, i, j - 1) + palabra[j];
 }
 
 bool resuelveCaso() {
@@ -86,9 +83,8 @@ bool resuelveCaso() {
       return false;
    
    int n = palabra.size();
-   Matriz<int> palindromo(n + 1, n + 1, -1);
-
-   cout << n - aibofobia(palabra, 0, n - 1, palindromo)<< " " << reconstruir(palabra, palindromo, 0, n - 1) << "\n";
+   Matriz<EntInf> M(n, n, Infinito);
+   cout << aibofobia(palabra, 0, n - 1, M)  << " " << reconstruir(palabra, M, 0, n -1) << "\n";
 
    return true;
 }

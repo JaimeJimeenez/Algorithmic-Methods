@@ -32,6 +32,7 @@ using namespace std;
  Así pues se tienen los costes:
    - En función del tiempo: O(N^2) siendo N el número de elementos que se tiene en el tablero.
    - En función del espacio: O(N^2).
+   
  @ </answer> */
 
 

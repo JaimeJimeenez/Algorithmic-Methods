@@ -102,8 +102,8 @@ bool resuelveCaso() {
         red[u][v] = 1;
         red[v][u] = 1; 
     }
-   
 
+    cout << red;
     int numRelaciones = relaciones(red);
     if (numRelaciones != -1)
         cout << numRelaciones << "\n";
