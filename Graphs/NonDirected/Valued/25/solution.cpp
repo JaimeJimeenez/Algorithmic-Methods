@@ -4,20 +4,25 @@
  *
  *@ </answer> */
 
-#include "GrafoValorado.h"
 #include <iostream>
 #include <fstream>
-#include <algorithm>
+
+#include "ConjuntosDisjuntos.h"
+#include "GrafoValorado.h"
+#include "PriorityQueue.h"
 using namespace std;
 
 /*@ <answer>
+  
+ Se quiere saber cuantos aeropuertos son necesarios para conectar varios puntos predefinidos y el coste minimo de construir carreteras que unan dichos puntos.
+ Para ello, se representarán dichos puntos como un grafo en el que los sitios de interés serán sus vértices y las carrreteras que conecten dichos sitios sus aristas con su respectivo valor.
+ Se utilizará el algoritmo de Kruskal para conseguir el árbol de recubrimiento mínimo y su coste minimo total. Además se consigue el número de conjuntos disjuntos que componen 
+ el grafo que indicará el número mínimo de aeropuertos necesarios para conectar todos los puntos.
+
+ El coste del ejercicio es:
+    - En función del tiempo: O(A logA) siendo A el número de aristas que componen el grafo
+    - En función del espacio: O(A) siendo A el número de aristas que componen el grafo.
  
- Se parte de un grafo valorado en el que las ciudades son los vértices que componen dicho grafo
- y sus aristas las carreteras cuyo valor es el precio por construir estas.
- Con respecto a los aeropuertos se necesitará construir n numeros de aeropuertos para n números de componentes
- conexas que se obtengan.
- 
- Coste O(V) siendo V el número de vértices del grafo construido.
  @ </answer> */
 
 
@@ -26,76 +31,58 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-class Construccion {
-    vector<bool> visit;
-    int aeropuerto, coste;
-
-    void dfs(GrafoValorado<int> const& G, int v) {
-        visit[v] = true;
-
-        for (auto w : G.ady(v)) {
-            if(!visit[w.otro(v)]) {
-                int minimo;
-                if (v == w.uno()) 
-                    minimo = getCosteMinimo(G, w.uno(), w.otro(v));
-                else
-                    minimo = getCosteMinimo(G, w.uno(), v);
-                coste += minimo;
-                dfs(G, w.otro(v));
-            }
-        }
-
-    }
-
-    int getCosteMinimo(GrafoValorado<int> const& G, int v, int w) {
-        int minimo = 1000000;
-
-        for (auto z : G.ady(v)) {
-            if (z.otro(v) == w) 
-                minimo = min(minimo, z.valor());
-        }
-
-        return minimo;
-    }
+class ARM_Kruskal {
+private:
+    vector<Arista<int>> _ARM;
+    int coste;
+    bool hayCamino;
+    int aeropuertos;
 
 public:
-    Construccion(GrafoValorado<int> const& G, int costeA) : visit(G.V(), false), aeropuerto(0), coste(0) {
-        for (int v = 1; v < G.V(); v++) {
-            if (!visit[v]) {
-                dfs(G, v);
-                aeropuerto++;
+    int costeARM() const { return coste; }
+
+    int getAeropuertos() const { return aeropuertos; }
+
+    bool getCamino() const { return hayCamino; }
+
+    vector<Arista<int>> const& ARM() const { return _ARM; }
+
+    ARM_Kruskal(GrafoValorado<int> const& g) : coste(0), aeropuertos(1) {
+        PriorityQueue<Arista<int>> pq(g.aristas());
+        ConjuntosDisjuntos cjtos(g.V());
+        while (!pq.empty()) {
+            auto a = pq.top(); pq.pop();
+            int v = a.uno(); int w = a.otro(v);
+            if (!cjtos.unidos(v, w)) {
+                cjtos.unir(v, w);
+                _ARM.push_back(a); coste += a.valor();
+                if (_ARM.size() == g.V() - 1) break;
             }
         }
-        coste += costeA * aeropuerto;
-    }
-
-    int getAeropuertos() const {
-        return aeropuerto;
-    }
-
-    int getCoste() const {
-        return coste;
+        aeropuertos = cjtos.num_cjtos() - 1;
     }
 };
 
+
 bool resuelveCaso() {
-    
+
     int N, M, A;
     cin >> N >> M >> A;
-    if (!std::cin) 
-      return false;
-    
-    GrafoValorado <int> aeropuerto(N + 1); //No se cogerá el vértice 0
-    int X, Y, C;
+    if (!cin)
+        return false;
+
+    GrafoValorado<int> grafo(N + 1);
     while (M--) {
-        cin >> X >> Y >> C;
-        aeropuerto.ponArista({X, Y, C});
-   }
+        int v, w, precio;
+        cin >> v >> w >> precio;
+        grafo.ponArista({ v, w, precio });
+    }
 
-   Construccion c(aeropuerto, A);
-   cout << c.getCoste() << " " << c.getAeropuertos() << "\n";
+    ARM_Kruskal kruskal(grafo);
+    int precioTotal = kruskal.getAeropuertos() * A + kruskal.costeARM();
+    cout << precioTotal << " " << kruskal.getAeropuertos() << "\n";
 
-   return true;
+    return true;
 }
 
 //@ </answer>
