@@ -7,29 +7,32 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <algorithm>
+#include <climits>
 #include "Matriz.h"
 using namespace std;
 
 /*@ <answer>
- Se pide conocer el minimo esfuerzo posible de cortar un tablos de longitud j en N trozos.
- Se utilizará programación dinámica para resolver este ejercicio siguiendo la siguiente función recursiva:
- 
- - tablon(i, j) = minimo esfuerzo que se debe realizar con los puntos de cortes de i a N para un tablón de longitud j.
- 
- Como se tiene una función recursiva, se tienen los siguientes casos basicos:
- - tablon(i, 0) = 0 sin el tablón es nulo y por tanto tiene una longitud nula
- - tablon(0, j) = Infinito si no se tiene ningún punto de corte para j.
- - tablon(i, j) = 0 si i == j
- Por contrapartida, se tienen los siguientes casos recursivos:
- - tablon(i, j) = tablon(i - 1, j) si i >= j
- - tablon(i, j) = min(tablon(i, k) + tablon(k, j) + 2 * puntos[i]) en caso contrario.
- 
- La llamada inicial será f(1, L) siendo L la longitud del tablón inicial.
- Costes en función del:
-    - Tiempo: O(n^3): siendo n el número de tablones
-    - Espacio: O(n^3): siendo n el número de tablones.
+  
+ Se pide conocer el minimo esfuerzo que puede haber al cortar un tablón de longitud L en ciertos puntos.
+ Para ello se usará programación dinámica para resolver el ejercicio siendo la función recursiva:
+    
+    - cortar(i, j) = minimo esfuerzo necesario que se necesita para cortar un tablón de longitud j
+    partiendo de los puntos de corte de i a n.
 
+ Como toda función recursiva, se tienen los siguientes casos básicos:
+    - cortar(i, 0) = 0 si no se tiene ninguna tabla que cortar.
+    - cortar(0, j) = INF si no se tienen ningún punto de corte 
+ Por contrapartida se tienen los siguientes casos recursivos:
+    -  cortar (i, j) = min(cortar(i, j), cortar(i, k) + cortar(k, j) + 2 * [C[j - 1] - C[j - 1]])
+    - cortar (i, j) en caso contrario.
+
+ Se usará una tabla o matriz de doble dimension para almacenar los resultados de los distintos subproblemas y se tendrá como 
+ solución la llamada a cortar(1, n).
+
+ En cuanto al coste:
+    - En función del espacio: O(N^2) siendo N el número de cortes posibles
+    - En función del tiempo: O(N^3).
+     
  @ </answer> */
 
 
@@ -38,13 +41,12 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-const int INF = 100000;
-int cortaTableros(vector<int> const& C) {
+int cortar (vector<int> const& C) {
     int n = C.size();
     Matriz<int> matrices(n + 1, n + 1, 0);
-    for (int d = 2; d < n; ++d) {   //Las diagonales van de 1 a n - 1
-        for (int i = 1; i <= n - d; ++i) {  //Nº total de elems en la diagonal d es n - d
-            int j = i + d;  //La columna a la que pertenece el elem i de la diagonal d es i + d
+    for (int d = 2; d < n; ++d) {   
+        for (int i = 1; i <= n - d; ++i) {  
+            int j = i + d;
             matrices[i][j] = INT_MAX;
             for (int k = i + 1; k < j; ++k) {
                 int temp = matrices[i][k] + matrices[k][j] + 2 * (C[j - 1] - C[i - 1]);
@@ -57,26 +59,22 @@ int cortaTableros(vector<int> const& C) {
     return matrices[1][n];
 }
 
-// resuelve un caso de prueba, leyendo de la entrada la
-// configuración, y escribiendo la respuesta
 bool resuelveCaso() {
-    int L, N;
-    cin >> L >> N;
-    if (L == 0 && N == 0)
+
+    int L, C;
+    cin >> L >> C;
+    if (L == 0 && C == 0)
         return false;
 
-    vector<int> cortes;
-    cortes.push_back(0);
-    for (int i = 0; i < N; ++i) {
-        int c;
-        cin >> c;
-        cortes.push_back(c);
-    }
-    cortes.push_back(L);
+    vector<int> puntos(C + 1);
+    for (int i = 1; i < puntos.size(); i++)
+        cin >> puntos[i];
+    puntos.push_back(L);
 
-    cout << cortaTableros(cortes) << "\n";
+    cout << cortar(puntos) << endl;
     return true;
 }
+
 //@ </answer>
 //  Lo que se escriba dejado de esta línea ya no forma parte de la solución.
 
