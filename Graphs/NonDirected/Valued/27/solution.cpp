@@ -6,16 +6,19 @@
 
 #include <iostream>
 #include <fstream>
-#include <numeric>
-#include <queue>
-using namespace std;
+#include <climits>
 
 #include "GrafoValorado.h"
 #include "IndexPQ.h"
+using namespace std;
 
 /*@ <answer>
   
- 
+ Se quiere conocer el número de caminos que se pueden tener de coste minimo desde un vértice inicial 
+ a un vértie destino. Para ello se realizará el algoritmo de Dijkstra para recorrer el grafo representando a una ciudad 
+ con sus respectivas calles e intersecciones.
+
+ Coste: O(A) siendo A el número de aristas que se tienen
  
  @ </answer> */
 
@@ -25,71 +28,61 @@ using namespace std;
 // ================================================================
 //@ <answer>
 
-using Camino = deque<Arista<int>>;
-
 class Dijkstra {
 public:
-    Dijkstra(GrafoValorado<int> const& g, int orig) : origen(orig), dist(g.V(), INF), ulti(g.V()), pq(g.V()) {
+    Dijkstra(GrafoValorado<int> const& g, int s, int d) : origen(s), destino(d), dist(g.V(), INF), caminos(g.V(), 0), ulti(g.V()), pq(g.V()) {
         dist[origen] = 0;
+        caminos[origen] = 1;
         pq.push(origen, 0);
-        while (!pq.empty()) {
+        while (!pq.empty() && pq.top().elem != destino) {
             int v = pq.top().elem; pq.pop();
-            for (auto a : g.ady(v)) 
-                relajar(a);
+            for (auto a : g.ady(v))
+                relajar(a, v);
         }
     }
 
-    bool hayCamino(int v) const { return dist[v] != INF; }
-
-    int distancia(int v) const { return dist[v]; }
-
-    Camino camino(int v) const {
-        Camino cam;
-        Arista<int> a;
-        for (a = ulti[v]; a.uno() != origen; a = ulti[a.otro(ulti[v].valor())])
-            cam.push_front(a);
-        cam.push_front(a);
-        return cam;
-    }
+    int numCaminos() const { return caminos[destino]; }
 
 private:
-    const int INF = std::numeric_limits<int>::max();
-    int origen;
+    const int INF = 1000000000;
     vector<int> dist;
     vector<Arista<int>> ulti;
+    vector<int> caminos;
     IndexPQ<int> pq;
+    int origen;
+    int destino;
 
-    void relajar(Arista<int> a) {
-        int v = a.uno(); int w = a.otro(v);
+    void relajar(Arista<int> a, int v) {
+        int w = a.otro(v);
+
         if (dist[w] > dist[v] + a.valor()) {
-            dist[w] = dist[v] + a.valor(); ulti[w] = a;
+            dist[w] = dist[v] + a.valor();
+            caminos[w] = caminos[v];
+            ulti[w] = a;
             pq.update(w, dist[w]);
+        }
+        else if (dist[w] == dist[v] + a.valor()) {
+            caminos[w] += caminos[v];
         }
     }
 };
 
-bool resuelveCaso() {
 
+bool resuelveCaso() {
     int N, C;
-    cin >> N >> C;
-    if (!cin)
+    cin >> N >> C; 
+    if (!cin) 
         return false;
 
-    GrafoValorado <int> g (N + 1);
+    GrafoValorado<int> grafo(N);
     while (C--) {
-        int v, w, p;
-        cin >> v >> w >> p;
-        g.ponArista({v, w, p});
+        int v, w, coste;
+        cin >> v >> w >> coste;
+        grafo.ponArista({v - 1, w - 1, coste});
     }
-    
-    cout << g;
-    Dijkstra d (g, 1);
-    if (d.hayCamino(N)) {
-        Camino cam = d.camino(N);
-        for (auto it = cam.begin(); it != cam.end(); ++it) {
-            cout << *it << " ";
-        }
-    }
+    Dijkstra recorrido(grafo, 0, N - 1);
+    cout << recorrido.numCaminos() << endl;
+
     return true;
 }
 
